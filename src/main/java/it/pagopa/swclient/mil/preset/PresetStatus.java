@@ -8,5 +8,6 @@ package it.pagopa.swclient.mil.preset;
  *
  */
 public enum PresetStatus {
-	TO_EXECUTE
+	TO_EXECUTE,
+	EXECUTED
 }

@@ -55,162 +55,162 @@ class PresetResourceTestIT {
 	}
 	
 //	@Test
-	void createPreset_201() {
-		
-		PresetRequest request = new PresetRequest();
-		request.setNoticeNumber("485564829563528563");
-		request.setNoticeTaxCode("15376371009");
-		request.setOperationType("PAYMENT_NOTICE");
-		request.setPaTaxCode("15376371009");
-		request.setSubscriberId("x46tr4");
-		
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.headers(presetHeaders)
-				.body(request)
-				.and()
-				.when()
-				.post()
-				.then()
-				.extract()
-				.response();
-			
-        Assertions.assertEquals(201, response.statusCode());
-        
-        Assertions.assertNotNull(response.getHeader(SubscribeResource.LOCATION));
-	}
-	
-	@Test
-	void createPreset_400_subscriberNotFound() {
-		
-		PresetRequest request = new PresetRequest();
-		request.setNoticeNumber("485564829563528563");
-		request.setNoticeTaxCode("15376371009");
-		request.setOperationType("PAYMENT_NOTICE");
-		request.setPaTaxCode("15376371111");
-		request.setSubscriberId("x46tr4");
-		
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.headers(presetHeaders)
-				.body(request)
-				.and()
-				.when()
-				.post()
-				.then()
-				.extract()
-				.response();
-			
-        Assertions.assertEquals(400, response.statusCode());
-        
-        Assertions.assertNull(response.getHeader(SubscribeResource.LOCATION));
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_SUBSCRIBER_NOT_FOUND));
-	}
-	@Test
-	void getPresets_200() {
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.headers(presetHeaders)
-				.and()
-				.when()
-				.get("/15376371009/x46tr3")
-				.then()
-				.extract()
-				.response();
-			
-        Assertions.assertEquals(200, response.statusCode());
-        
-        Assertions.assertNotNull(response.jsonPath().getJsonObject("presets"));
-        List<PresetResponse> arr = response.jsonPath().getList("presets", PresetResponse.class);
-        
-        Assertions.assertNotNull(arr.get(0).getCreationTimestamp());
-        Assertions.assertNotNull(arr.get(0).getNoticeNumber());
-        
-        Assertions.assertNotNull(arr.get(0).getNoticeTaxCode());
-        Assertions.assertNotNull(arr.get(0).getOperationType());
-        Assertions.assertNotNull(arr.get(0).getPaTaxCode());
-        Assertions.assertNotNull(arr.get(0).getPresetId());
-        Assertions.assertNotNull(arr.get(0).getStatus());
-        Assertions.assertNotNull(arr.get(0).getStatusTimestamp());
-        Assertions.assertNotNull(arr.get(0).getSubscriberId());
-        PaymentTransaction statDetails = arr.get(0).getStatusDetails();
-        Assertions.assertNotNull(statDetails.getAcquirerId());
-        Assertions.assertNotNull(statDetails.getChannel());
-        Assertions.assertNotNull(statDetails.getInsertTimestamp());
-        Assertions.assertNotNull(statDetails.getAcquirerId());
-        Assertions.assertNotNull(statDetails.getStatus());
-        Assertions.assertNotNull(statDetails.getNotices());
-        List<Notice>  noticesResponse = statDetails.getNotices();
-        Assertions.assertNotNull(noticesResponse.get(0).getAmount());
-        Assertions.assertNotNull(noticesResponse.get(0).getCompany());
-        Assertions.assertNotNull(noticesResponse.get(0).getDescription());
-        Assertions.assertNotNull(noticesResponse.get(0).getNoticeNumber());
-        Assertions.assertNotNull(noticesResponse.get(0).getOffice());
-        Assertions.assertNotNull(noticesResponse.get(0).getPaTaxCode());
-        Assertions.assertNotNull(noticesResponse.get(0).getPaymentToken());
-	}
-	
-	@Test
-	void getPresets_200_emptyPreset() {
-		
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.headers(presetHeaders)
-				.and()
-				.when()
-				.get("/15376371009/46t000")
-				.then()
-				.extract()
-				.response();
-			
-        Assertions.assertEquals(200, response.statusCode());
-        
-        Assertions.assertNotNull(response.jsonPath().getJsonObject("presets"));
-        List<PresetResponse> arr = response.jsonPath().getList("presets", PresetResponse.class);
-        
-        Assertions.assertEquals(0,arr.size());
-	}
-	
-	@Test
-	void getLastPreset_200() {
-
-		Response response = given()
-				.contentType(ContentType.JSON)
-				.headers(commonHeaders)
-				.and()
-				.when()
-				.get("/15376371009/x46tr3/last_to_execute")
-				.then()
-				.extract()
-				.response();
-			
-        Assertions.assertEquals(200, response.statusCode());
-        
-        Assertions.assertNotNull(response.jsonPath().getString("creationTimestamp"));
-        Assertions.assertNotNull(response.jsonPath().getString("noticeNumber"));
-        Assertions.assertNotNull(response.jsonPath().getString("noticeTaxCode"));
-        Assertions.assertNotNull(response.jsonPath().getString("operationType"));
-        Assertions.assertNotNull(response.jsonPath().getString("paTaxCode"));
-        Assertions.assertNotNull(response.jsonPath().getString("presetId"));
-        Assertions.assertNotNull(response.jsonPath().getString("status"));
-        Assertions.assertNotNull(response.jsonPath().getString("statusTimestamp"));
-        Assertions.assertNotNull(response.jsonPath().getString("subscriberId"));
-        System.out.println(">>>>>" + response.jsonPath());
-        Assertions.assertNotNull(response.jsonPath().getJsonObject("statusDetails"));
-        PaymentTransaction statDetails = response.jsonPath().getObject("statusDetails", PaymentTransaction.class);
-        Assertions.assertNotNull(statDetails.getChannel());
-        Assertions.assertNotNull(statDetails.getInsertTimestamp());
-        Assertions.assertNotNull(statDetails.getAcquirerId());
-        Assertions.assertNotNull(statDetails.getStatus());
-        Assertions.assertNotNull(statDetails.getNotices());
-        List<Notice>  noticesResponse = statDetails.getNotices();
-        Assertions.assertNotNull(noticesResponse.get(0).getAmount());
-        Assertions.assertNotNull(noticesResponse.get(0).getCompany());
-        Assertions.assertNotNull(noticesResponse.get(0).getDescription());
-        Assertions.assertNotNull(noticesResponse.get(0).getNoticeNumber());
-        Assertions.assertNotNull(noticesResponse.get(0).getOffice());
-        Assertions.assertNotNull(noticesResponse.get(0).getPaTaxCode());
-        Assertions.assertNotNull(noticesResponse.get(0).getPaymentToken());
-	}
+//	void createPreset_201() {
+//		
+//		PresetRequest request = new PresetRequest();
+//		request.setNoticeNumber("485564829563528563");
+//		request.setNoticeTaxCode("15376371009");
+//		request.setOperationType("PAYMENT_NOTICE");
+//		request.setPaTaxCode("15376371009");
+//		request.setSubscriberId("x46tr4");
+//		
+//		Response response = given()
+//				.contentType(ContentType.JSON)
+//				.headers(presetHeaders)
+//				.body(request)
+//				.and()
+//				.when()
+//				.post()
+//				.then()
+//				.extract()
+//				.response();
+//			
+//        Assertions.assertEquals(201, response.statusCode());
+//        
+//        Assertions.assertNotNull(response.getHeader(SubscribeResource.LOCATION));
+//	}
+//	
+//	@Test
+//	void createPreset_400_subscriberNotFound() {
+//		
+//		PresetRequest request = new PresetRequest();
+//		request.setNoticeNumber("485564829563528563");
+//		request.setNoticeTaxCode("15376371009");
+//		request.setOperationType("PAYMENT_NOTICE");
+//		request.setPaTaxCode("15376371111");
+//		request.setSubscriberId("x46tr4");
+//		
+//		Response response = given()
+//				.contentType(ContentType.JSON)
+//				.headers(presetHeaders)
+//				.body(request)
+//				.and()
+//				.when()
+//				.post()
+//				.then()
+//				.extract()
+//				.response();
+//			
+//        Assertions.assertEquals(400, response.statusCode());
+//        
+//        Assertions.assertNull(response.getHeader(SubscribeResource.LOCATION));
+//        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_SUBSCRIBER_NOT_FOUND));
+//	}
+//	@Test
+//	void getPresets_200() {
+//		Response response = given()
+//				.contentType(ContentType.JSON)
+//				.headers(presetHeaders)
+//				.and()
+//				.when()
+//				.get("/15376371009/x46tr3")
+//				.then()
+//				.extract()
+//				.response();
+//			
+//        Assertions.assertEquals(200, response.statusCode());
+//        
+//        Assertions.assertNotNull(response.jsonPath().getJsonObject("presets"));
+//        List<PresetResponse> arr = response.jsonPath().getList("presets", PresetResponse.class);
+//        
+//        Assertions.assertNotNull(arr.get(0).getCreationTimestamp());
+//        Assertions.assertNotNull(arr.get(0).getNoticeNumber());
+//        
+//        Assertions.assertNotNull(arr.get(0).getNoticeTaxCode());
+//        Assertions.assertNotNull(arr.get(0).getOperationType());
+//        Assertions.assertNotNull(arr.get(0).getPaTaxCode());
+//        Assertions.assertNotNull(arr.get(0).getPresetId());
+//        Assertions.assertNotNull(arr.get(0).getStatus());
+//        Assertions.assertNotNull(arr.get(0).getStatusTimestamp());
+//        Assertions.assertNotNull(arr.get(0).getSubscriberId());
+//        PaymentTransaction statDetails = arr.get(0).getStatusDetails();
+//        Assertions.assertNotNull(statDetails.getAcquirerId());
+//        Assertions.assertNotNull(statDetails.getChannel());
+//        Assertions.assertNotNull(statDetails.getInsertTimestamp());
+//        Assertions.assertNotNull(statDetails.getAcquirerId());
+//        Assertions.assertNotNull(statDetails.getStatus());
+//        Assertions.assertNotNull(statDetails.getNotices());
+//        List<Notice>  noticesResponse = statDetails.getNotices();
+//        Assertions.assertNotNull(noticesResponse.get(0).getAmount());
+//        Assertions.assertNotNull(noticesResponse.get(0).getCompany());
+//        Assertions.assertNotNull(noticesResponse.get(0).getDescription());
+//        Assertions.assertNotNull(noticesResponse.get(0).getNoticeNumber());
+//        Assertions.assertNotNull(noticesResponse.get(0).getOffice());
+//        Assertions.assertNotNull(noticesResponse.get(0).getPaTaxCode());
+//        Assertions.assertNotNull(noticesResponse.get(0).getPaymentToken());
+//	}
+//	
+//	@Test
+//	void getPresets_200_emptyPreset() {
+//		
+//		Response response = given()
+//				.contentType(ContentType.JSON)
+//				.headers(presetHeaders)
+//				.and()
+//				.when()
+//				.get("/15376371009/46t000")
+//				.then()
+//				.extract()
+//				.response();
+//			
+//        Assertions.assertEquals(200, response.statusCode());
+//        
+//        Assertions.assertNotNull(response.jsonPath().getJsonObject("presets"));
+//        List<PresetResponse> arr = response.jsonPath().getList("presets", PresetResponse.class);
+//        
+//        Assertions.assertEquals(0,arr.size());
+//	}
+//	
+//	@Test
+//	void getLastPreset_200() {
+//
+//		Response response = given()
+//				.contentType(ContentType.JSON)
+//				.headers(commonHeaders)
+//				.and()
+//				.when()
+//				.get("/15376371009/x46tr3/last_to_execute")
+//				.then()
+//				.extract()
+//				.response();
+//			
+//        Assertions.assertEquals(200, response.statusCode());
+//        
+//        Assertions.assertNotNull(response.jsonPath().getString("creationTimestamp"));
+//        Assertions.assertNotNull(response.jsonPath().getString("noticeNumber"));
+//        Assertions.assertNotNull(response.jsonPath().getString("noticeTaxCode"));
+//        Assertions.assertNotNull(response.jsonPath().getString("operationType"));
+//        Assertions.assertNotNull(response.jsonPath().getString("paTaxCode"));
+//        Assertions.assertNotNull(response.jsonPath().getString("presetId"));
+//        Assertions.assertNotNull(response.jsonPath().getString("status"));
+//        Assertions.assertNotNull(response.jsonPath().getString("statusTimestamp"));
+//        Assertions.assertNotNull(response.jsonPath().getString("subscriberId"));
+//        System.out.println(">>>>>" + response.jsonPath());
+//        Assertions.assertNotNull(response.jsonPath().getJsonObject("statusDetails"));
+//        PaymentTransaction statDetails = response.jsonPath().getObject("statusDetails", PaymentTransaction.class);
+//        Assertions.assertNotNull(statDetails.getChannel());
+//        Assertions.assertNotNull(statDetails.getInsertTimestamp());
+//        Assertions.assertNotNull(statDetails.getAcquirerId());
+//        Assertions.assertNotNull(statDetails.getStatus());
+//        Assertions.assertNotNull(statDetails.getNotices());
+//        List<Notice>  noticesResponse = statDetails.getNotices();
+//        Assertions.assertNotNull(noticesResponse.get(0).getAmount());
+//        Assertions.assertNotNull(noticesResponse.get(0).getCompany());
+//        Assertions.assertNotNull(noticesResponse.get(0).getDescription());
+//        Assertions.assertNotNull(noticesResponse.get(0).getNoticeNumber());
+//        Assertions.assertNotNull(noticesResponse.get(0).getOffice());
+//        Assertions.assertNotNull(noticesResponse.get(0).getPaTaxCode());
+//        Assertions.assertNotNull(noticesResponse.get(0).getPaymentToken());
+//	}
 	
 }

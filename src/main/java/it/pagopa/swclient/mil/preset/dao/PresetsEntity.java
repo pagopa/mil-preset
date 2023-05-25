@@ -20,7 +20,7 @@ public class PresetsEntity {
 	/*
 	 * Operation type
 	 */
-	public String operationType;
+	private String operationType;
 	
 	/*
 	 * Preset Id

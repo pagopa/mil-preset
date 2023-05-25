@@ -1,21 +1,27 @@
 package it.pagopa.swclient.mil.preset.bean;
 
+import java.io.Serializable;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 /**
  * Entity bean containing the data of a payment transaction
  */
 @RegisterForReflection
-public class PaymentTransaction {
+public class PaymentTransaction implements Serializable{ 
+
+	/**
+	 *PaymentTransaction.java
+	 */
+	private static final long serialVersionUID = -381551586658539004L;
 
 	/**
 	 * The identifier of the payment transaction
@@ -70,7 +76,7 @@ public class PaymentTransaction {
 	 */
 	@Min(value = 1)
 	@Max(value = 99999999999L)
-	private long totalAmount;
+	private Long totalAmount;
 
 	/**
 	 * The total fee for the payment transaction, retrieved by GEC and passed by the client
@@ -121,6 +127,12 @@ public class PaymentTransaction {
 	@Max(value = 19)
 	@JsonInclude(Include.NON_NULL)
 	private String callbackTimestamp;
+	
+	/*
+	 * Preset information
+	 */
+	@JsonInclude(Include.NON_NULL)
+	private Preset preset;
 
 	/**
 	 * Gets transactionId
@@ -362,25 +374,80 @@ public class PaymentTransaction {
 		this.callbackTimestamp = callbackTimestamp;
 	}
 
+	/**
+	 * @return the preset
+	 */
+	public Preset getPreset() {
+		return preset;
+	}
+
+	/**
+	 * @param preset the preset to set
+	 */
+	public void setPreset(Preset preset) {
+		this.preset = preset;
+	}
+
 	@Override
 	public String toString() {
-		final StringBuilder sb = new StringBuilder("PaymentTransaction{");
-		sb.append("transactionId='").append(transactionId).append('\'');
-		sb.append(", acquirerId='").append(acquirerId).append('\'');
-		sb.append(", channel='").append(channel).append('\'');
-		sb.append(", merchantId='").append(merchantId).append('\'');
-		sb.append(", terminalId='").append(terminalId).append('\'');
-		sb.append(", insertTimestamp='").append(insertTimestamp).append('\'');
-		sb.append(", notices=").append(notices);
-		sb.append(", totalAmount=").append(totalAmount);
-		sb.append(", fee=").append(fee);
-		sb.append(", status='").append(status).append('\'');
-		sb.append(", paymentMethod='").append(paymentMethod).append('\'');
-		sb.append(", paymentTimestamp='").append(paymentTimestamp).append('\'');
-		sb.append(", closeTimestamp='").append(closeTimestamp).append('\'');
-		sb.append(", paymentDate='").append(paymentDate).append('\'');
-		sb.append(", callbackTimestamp='").append(callbackTimestamp).append('\'');
-		sb.append('}');
-		return sb.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("PaymentTransaction [transactionId=");
+		builder.append(transactionId);
+		builder.append(", acquirerId=");
+		builder.append(acquirerId);
+		builder.append(", channel=");
+		builder.append(channel);
+		builder.append(", merchantId=");
+		builder.append(merchantId);
+		builder.append(", terminalId=");
+		builder.append(terminalId);
+		builder.append(", insertTimestamp=");
+		builder.append(insertTimestamp);
+		builder.append(", notices=");
+		builder.append(notices);
+		builder.append(", totalAmount=");
+		builder.append(totalAmount);
+		builder.append(", fee=");
+		builder.append(fee);
+		builder.append(", status=");
+		builder.append(status);
+		builder.append(", paymentMethod=");
+		builder.append(paymentMethod);
+		builder.append(", paymentTimestamp=");
+		builder.append(paymentTimestamp);
+		builder.append(", closeTimestamp=");
+		builder.append(closeTimestamp);
+		builder.append(", paymentDate=");
+		builder.append(paymentDate);
+		builder.append(", callbackTimestamp=");
+		builder.append(callbackTimestamp);
+		builder.append(", preset=");
+		builder.append(preset);
+		builder.append("]");
+		return builder.toString();
 	}
+
+//	@Override
+//	public byte[] serialize(String topic, Object data) {
+//		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11");
+//		byte[] bytes = null;
+//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//		ObjectOutputStream out = null;
+//		try {
+//			out = new ObjectOutputStream(bos);
+//			  out.writeObject(data);
+//			  out.flush();
+//			  bytes = bos.toByteArray();
+//		} catch (IOException e) {
+//
+//		} finally {
+//		  try {
+//		    bos.close();
+//		  } catch (IOException ex) {
+//		  }
+//		}
+//		
+//		return bytes;
+//	}
+
 }
