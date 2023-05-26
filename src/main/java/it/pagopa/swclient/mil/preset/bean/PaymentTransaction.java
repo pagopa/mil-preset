@@ -1,27 +1,21 @@
 package it.pagopa.swclient.mil.preset.bean;
 
-import java.io.Serializable;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
+
+import java.util.List;
 
 /**
  * Entity bean containing the data of a payment transaction
  */
 @RegisterForReflection
-public class PaymentTransaction implements Serializable{ 
-
-	/**
-	 *PaymentTransaction.java
-	 */
-	private static final long serialVersionUID = -381551586658539004L;
+public class PaymentTransaction {
 
 	/**
 	 * The identifier of the payment transaction
@@ -87,7 +81,7 @@ public class PaymentTransaction implements Serializable{
 	private Long fee;
 
 	/**
-	 * The status of this payment transaction. Can be one of {@link PaymentTransactionStatus}
+	 * The status of this payment transaction
 	 */
 	@NotNull
 	@Pattern(regexp = "PRE_CLOSE|PENDING|ERROR_ON_CLOSE|CLOSED|ERROR_ON_RESULT|ERROR_ON_PAYMENT|ABORTED")
@@ -132,6 +126,7 @@ public class PaymentTransaction implements Serializable{
 	 * Preset information
 	 */
 	@JsonInclude(Include.NON_NULL)
+	@BsonIgnore
 	private Preset preset;
 
 	/**
@@ -426,28 +421,5 @@ public class PaymentTransaction implements Serializable{
 		builder.append("]");
 		return builder.toString();
 	}
-
-//	@Override
-//	public byte[] serialize(String topic, Object data) {
-//		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11");
-//		byte[] bytes = null;
-//		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//		ObjectOutputStream out = null;
-//		try {
-//			out = new ObjectOutputStream(bos);
-//			  out.writeObject(data);
-//			  out.flush();
-//			  bytes = bos.toByteArray();
-//		} catch (IOException e) {
-//
-//		} finally {
-//		  try {
-//		    bos.close();
-//		  } catch (IOException ex) {
-//		  }
-//		}
-//		
-//		return bytes;
-//	}
 
 }

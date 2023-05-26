@@ -1,25 +1,23 @@
 package it.pagopa.swclient.mil.preset.resource;
 
-import java.util.Iterator;
-import java.util.Map;
-
+import com.google.common.collect.ImmutableMap;
+import io.quarkus.test.common.DevServicesContext;
+import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Container.ExecResult;
 import org.testcontainers.containers.GenericContainer;
-//import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Iterator;
+import java.util.Map;
 
-import io.quarkus.test.common.DevServicesContext;
-import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
-public class MongoTestResource implements QuarkusTestResourceLifecycleManager,DevServicesContext.ContextAware {
+public class MongoTestResource implements QuarkusTestResourceLifecycleManager, DevServicesContext.ContextAware {
     
 	private static final Logger logger = LoggerFactory.getLogger(MongoTestResource.class);
     private static final String MONGO_NETWORK_ALIAS = "mongo-it";

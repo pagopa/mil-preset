@@ -1,6 +1,3 @@
-/**
- * 
- */
 package it.pagopa.swclient.mil.preset.bean;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -9,14 +6,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 @RegisterForReflection
-public class SubscriberResponse {
+public class Subscriber {
 	
 	/*
 	 * Acquirer ID assigned by PagoPA
 	 */
 	@NotNull
 	@Pattern(regexp = "^\\d{1,11}$")
-	public String acquirerId;
+	private String acquirerId;
 	
 	/*
 	 * Channel originating the request

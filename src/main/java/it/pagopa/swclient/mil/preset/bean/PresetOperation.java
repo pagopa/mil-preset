@@ -1,84 +1,82 @@
-package it.pagopa.swclient.mil.preset.dao;
-
-import org.bson.codecs.pojo.annotations.BsonId;
-
-import io.quarkus.mongodb.panache.common.MongoEntity;
-import it.pagopa.swclient.mil.preset.bean.PaymentTransaction;
-
 /**
- * Entity of the Preset service
+ * 
  */
-@MongoEntity(database = "mil", collection = "presets")
-public class PresetsEntity {
-	
-	/*
-	 * id set as presetId
-	 */
-	@BsonId
-	private String id;
-	
+package it.pagopa.swclient.mil.preset.bean;
+
+import io.quarkus.runtime.annotations.RegisterForReflection;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
+@RegisterForReflection
+public class PresetOperation {
 	/*
 	 * Operation type
 	 */
-	private String operationType;
+	@NotNull
+	@Pattern(regexp = "PAYMENT_NOTICE")
+	public String operationType;
 	
 	/*
 	 * Preset Id
 	 */
+	@NotNull
+	@Pattern(regexp = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$")
 	private String presetId;
 
 	/*
 	 * Tax code of the creditor company
 	 */
+	@NotNull
+	@Pattern(regexp = "^[0-9]{11}$")
 	private String paTaxCode;
 	
 	/*
 	 * Subscriber ID
 	 */
+	@NotNull
+	@Pattern(regexp = "^[0-9a-z]{6}$")
 	private String subscriberId;
 	
 	/*
 	 * Creation timestamp
 	 */
+	@NotNull
+	@Max(value = 19)
 	private String creationTimestamp;
 	
 	/*
 	 * Status
 	 */
+	@Pattern(regexp = "TO_EXECUTE|EXECUTED")
 	private String status;
 	
 	/*
 	 * Status timestamp
 	 */
+	@NotNull
+	@Max(value = 19)
 	private String statusTimestamp;
 	
 	/*
 	 * Tax code of the creditor company
 	 */
+	@NotNull
+	@Pattern(regexp = "^[0-9]{11}$")
 	private String noticeTaxCode;
 	
 	/*
 	 * Notice number
 	 */
+	@NotNull
+	@Pattern(regexp = "^[0-9]{18}$")
 	private String noticeNumber;
-
+	
 	/*
 	 * Payment status
 	 */
+	@NotNull
 	private PaymentTransaction statusDetails;
-	/**
-	 * @return the id
-	 */
-	public String getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
 
 	/**
 	 * @return the operationType
@@ -218,5 +216,32 @@ public class PresetsEntity {
 	 */
 	public void setStatusDetails(PaymentTransaction statusDetails) {
 		this.statusDetails = statusDetails;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("PresetOperation [operationType=");
+		builder.append(operationType);
+		builder.append(", presetId=");
+		builder.append(presetId);
+		builder.append(", paTaxCode=");
+		builder.append(paTaxCode);
+		builder.append(", subscriberId=");
+		builder.append(subscriberId);
+		builder.append(", creationTimestamp=");
+		builder.append(creationTimestamp);
+		builder.append(", status=");
+		builder.append(status);
+		builder.append(", statusTimestamp=");
+		builder.append(statusTimestamp);
+		builder.append(", noticeTaxCode=");
+		builder.append(noticeTaxCode);
+		builder.append(", noticeNumber=");
+		builder.append(noticeNumber);
+		builder.append(", statusDetails=");
+		builder.append(statusDetails);
+		builder.append("]");
+		return builder.toString();
 	}
 }

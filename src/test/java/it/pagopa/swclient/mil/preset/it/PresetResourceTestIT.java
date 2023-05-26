@@ -1,29 +1,15 @@
 package it.pagopa.swclient.mil.preset.it;
 
-import static io.restassured.RestAssured.given;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import it.pagopa.swclient.mil.preset.ErrorCode;
-import it.pagopa.swclient.mil.preset.bean.Notice;
-import it.pagopa.swclient.mil.preset.bean.PaymentTransaction;
-import it.pagopa.swclient.mil.preset.bean.PresetRequest;
-import it.pagopa.swclient.mil.preset.bean.PresetResponse;
 import it.pagopa.swclient.mil.preset.resource.MongoTestResource;
 import it.pagopa.swclient.mil.preset.resource.PresetsResource;
-import it.pagopa.swclient.mil.preset.resource.SubscribeResource;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @QuarkusIntegrationTest
 @QuarkusTestResource(value=MongoTestResource.class,restrictToAnnotatedClass = true)

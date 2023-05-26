@@ -1,42 +1,41 @@
-/**
- * 
- */
 package it.pagopa.swclient.mil.preset.bean;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RegisterForReflection
-public class SubcribersResponse {
+public class GetSubscribersResponse {
+
 	/*
 	 * 	List of subscribed terminals
 	 */
 	@NotNull
-	private List<SubscriberResponse> subscribers = new ArrayList<>();
+	private List<Subscriber> subscribers = new ArrayList<>();
 
 	/**
 	 * @return the subscribers
 	 */
-	public List<SubscriberResponse> getSubscribers() {
+	public List<Subscriber> getSubscribers() {
 		return subscribers;
 	}
 
 	/**
-	 * @param subscriberResponses the subscribers to set
+	 * @param subscribers the subscribers to set
 	 */
-	public void setSubscribers(List<SubscriberResponse> subscriberResponses) {
-		this.subscribers = subscriberResponses;
+	public void setSubscribers(List<Subscriber> subscribers) {
+		this.subscribers = subscribers;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("SubcribersResponse [subscribers=");
+		builder.append("GetSubscribersResponse [subscribers=");
 		builder.append(subscribers);
 		builder.append("]");
 		return builder.toString();
 	}
+
 }

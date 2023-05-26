@@ -1,32 +1,21 @@
 package it.pagopa.swclient.mil.preset.it;
 
 
-import static io.restassured.RestAssured.given;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
-import it.pagopa.swclient.mil.preset.ErrorCode;
-import it.pagopa.swclient.mil.preset.bean.SubscriberRequest;
-import it.pagopa.swclient.mil.preset.bean.SubscriberResponse;
 import it.pagopa.swclient.mil.preset.resource.MongoTestResource;
-import it.pagopa.swclient.mil.preset.resource.SubscribeResource;
+import it.pagopa.swclient.mil.preset.resource.TerminalsResource;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 @QuarkusIntegrationTest
 @QuarkusTestResource(value=MongoTestResource.class,restrictToAnnotatedClass = true)
-@TestHTTPEndpoint(SubscribeResource.class)
+@TestHTTPEndpoint(TerminalsResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class SubscribeResourceTestIT {
 	final static String SESSION_ID		= "a6a666e6-97da-4848-b568-99fedccb642c";

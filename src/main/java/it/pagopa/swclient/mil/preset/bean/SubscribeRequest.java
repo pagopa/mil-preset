@@ -6,11 +6,11 @@ package it.pagopa.swclient.mil.preset.bean;
 import it.pagopa.swclient.mil.preset.ErrorCode;
 import jakarta.validation.constraints.Pattern;
 
-public class SubscriberRequest {
+public class SubscribeRequest {
 	/*
 	 * Tax code of the creditor company
 	 */
-	@Pattern(regexp = "^[0-9]{11}$", message = "[" + ErrorCode.PATAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
+	@Pattern(regexp = "^[0-9]{11}$", message = "[" + ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
 	private String paTaxCode;
 	
 	/*

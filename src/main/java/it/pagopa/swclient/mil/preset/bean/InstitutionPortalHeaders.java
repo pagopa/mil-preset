@@ -9,7 +9,8 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.HeaderParam;
 
-public class PresetHeaders {
+public class InstitutionPortalHeaders {
+
 	/*
 	 * Request ID
 	 */

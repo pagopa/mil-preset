@@ -7,12 +7,12 @@ import it.pagopa.swclient.mil.preset.ErrorCode;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public class PresetRequest {
+public class CreatePresetRequest {
 	
 	/*
 	 * 	Operation of payment of a notice
 	 */
-	@NotNull(message = "[" + ErrorCode.PATAX_CODE_MUST_NOT_BE_NULL + "] operationType must not be null")
+	@NotNull(message = "[" + ErrorCode.PA_TAX_CODE_MUST_NOT_BE_NULL + "] operationType must not be null")
 	@Pattern(regexp = "PAYMENT_NOTICE", message = "[" + ErrorCode.OPERATION_TYPE_MUST_MATCH_REGEXP + "] operationType must match \"{regexp}\"")
 	private String operationType;
 
@@ -20,8 +20,8 @@ public class PresetRequest {
 	/*
 	 * Tax code of the creditor company
 	 */
-	@NotNull(message = "[" + ErrorCode.PATAX_CODE_MUST_NOT_BE_NULL + "] paTaxCode must not be null")
-	@Pattern(regexp = "^[0-9]{11}$", message = "[" + ErrorCode.PATAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
+	@NotNull(message = "[" + ErrorCode.PA_TAX_CODE_MUST_NOT_BE_NULL + "] paTaxCode must not be null")
+	@Pattern(regexp = "^[0-9]{11}$", message = "[" + ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
 	private String paTaxCode;
 	
 	

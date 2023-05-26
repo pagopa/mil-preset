@@ -3,22 +3,24 @@
  */
 package it.pagopa.swclient.mil.preset.utils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class DateUtils {
 
-	/**
-	 * Utility method. Generate a formatted current date time
-	 * @return formatted current date time. Format yyyy-MM-dd'T'HH:mm:ss.SS
-	 */
-	public static String getAndFormatCurrentDate() {
-		final String pattern = "yyyy-MM-dd'T'HH:mm:ss.SS";
+	private DateUtils() {}
 
-		DateFormat df 		= new SimpleDateFormat(pattern);
-		Date currentDate 	= Calendar.getInstance().getTime();        
-		return df.format(currentDate);
+	/**
+	 * Generates the current timestamp (UTC time) in the uuuu-MM-dd'T'HH:mm:ss format
+	 * @return the timestamp
+	 */
+	public static String getCurrentTimestamp() {
+		return LocalDateTime.ofInstant(Instant.now().truncatedTo(ChronoUnit.SECONDS), ZoneOffset.UTC)
+				.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 	}
+
+
 }

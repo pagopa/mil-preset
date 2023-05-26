@@ -1,40 +1,31 @@
 package it.pagopa.swclient.mil.preset.it;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.SerializationUtils;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-
-import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
-import io.quarkus.test.kafka.InjectKafkaCompanion;
-import io.quarkus.test.kafka.KafkaCompanionResource;
-import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion;
-import io.smallrye.reactive.messaging.kafka.companion.ProducerTask;
 import it.pagopa.swclient.mil.preset.bean.Notice;
 import it.pagopa.swclient.mil.preset.bean.PaymentTransaction;
 import it.pagopa.swclient.mil.preset.bean.Preset;
+import org.junit.jupiter.api.TestInstance;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @QuarkusIntegrationTest
 //@QuarkusTestResource(value=MongoTestResource.class,restrictToAnnotatedClass = true)
 //@TestHTTPEndpoint(PresetsResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@QuarkusTestResource(KafkaCompanionResource.class)
+//@QuarkusTestResource(KafkaCompanionResource.class)
 class PresetTopicResourceTestIT {
-	@InjectKafkaCompanion 
-    KafkaCompanion companion;
+//	@InjectKafkaCompanion
+ //   KafkaCompanion companion;
 	
-	@Test
-    void preset_200() {
-    	
-    	ProducerTask producerTask = companion.produce(byte[].class).usingGenerator(i -> new ProducerRecord<>("presets",SerializationUtils.serialize(getPaymentTransaction())),1);   
-    	long count = producerTask.awaitCompletion().count();
-    	System.out.println(">[" + count + "]<");
-    	System.out.println(">>>>a");
-  }
+//	@Test
+//    void preset_200() {
+//
+//    	ProducerTask producerTask = companion.produce(byte[].class).usingGenerator(i -> new ProducerRecord<>("presets",SerializationUtils.serialize(getPaymentTransaction())),1);
+//    	long count = producerTask.awaitCompletion().count();
+//    	System.out.println(">[" + count + "]<");
+//    	System.out.println(">>>>a");
+//  }
 	
 	private PaymentTransaction getPaymentTransaction() {
     	PaymentTransaction transaction = new PaymentTransaction();

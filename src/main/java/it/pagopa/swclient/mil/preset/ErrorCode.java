@@ -1,20 +1,10 @@
-/*
- * ErrorCode.java
- *
- * 12 dec 2022
- */
-
 package it.pagopa.swclient.mil.preset;
 
-/**
- * 
- * @author Antonio Tarricone
- */
 public final class ErrorCode {
 	public static final String MODULE_ID 								= "00A";
 	
-	public static final String PATAX_CODE_MUST_NOT_BE_NULL 				= MODULE_ID + "000001";
-	public static final String PATAX_CODE_MUST_MATCH_REGEXP 			= MODULE_ID + "000002";
+	public static final String PA_TAX_CODE_MUST_NOT_BE_NULL 			= MODULE_ID + "000001";
+	public static final String PA_TAX_CODE_MUST_MATCH_REGEXP 			= MODULE_ID + "000002";
 	
 	public static final String ERROR_COMMUNICATION_MONGO_DB				= MODULE_ID + "000003";
 	

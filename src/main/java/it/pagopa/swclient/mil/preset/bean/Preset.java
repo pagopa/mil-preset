@@ -3,17 +3,10 @@
  */
 package it.pagopa.swclient.mil.preset.bean;
 
-import java.io.Serializable;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-public class Preset implements Serializable{
-
-	/**
-	 *Preset.java
-	 */
-	private static final long serialVersionUID = -8846393398844116002L;
+public class Preset {
 
 	/*
 	 * Tax code of the creditor company

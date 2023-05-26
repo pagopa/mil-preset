@@ -1,27 +1,18 @@
 package it.pagopa.swclient.mil.preset.bean;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-
 /**
  * Entity bean containing the data of a payment notice as returned by the activatePayment API of the node
  */
 @RegisterForReflection
-public class Notice implements Serializable{
-
-	/**
-	 *Notice.java
-	 */
-	private static final long serialVersionUID = -2280229423335568513L;
+public class Notice {
 
 	/**
      * The payment token returned by the node

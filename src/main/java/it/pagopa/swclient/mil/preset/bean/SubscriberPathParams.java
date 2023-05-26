@@ -5,24 +5,24 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.PathParam;
 
-public class PresetsPathParam {
+public class SubscriberPathParams {
 
 	/*
 	 * Tax code of the creditor company
 	 */
 	@PathParam(value = "paTaxCode")
-	@NotNull(message = "[" + ErrorCode.PATAX_CODE_MUST_NOT_BE_NULL + "] paTaxCode must not be null")
-	@Pattern(regexp = "^[0-9]{11}$", message = "[" + ErrorCode.PATAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
+	@NotNull(message = "[" + ErrorCode.PA_TAX_CODE_MUST_NOT_BE_NULL + "] paTaxCode must not be null")
+	@Pattern(regexp = "^[0-9]{11}$", message = "[" + ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
 	private String paTaxCode;
 
 	/*
-	 * Subscriber ID
+	 * ID assigned to subscribed terminal
 	 */
 	@PathParam(value = "subscriberId")
 	@NotNull(message = "[" + ErrorCode.SUBSCRIBER_ID_MUST_NOT_BE_NULL + "] subscriberId must not be null")
 	@Pattern(regexp = "^[0-9a-z]{6}$", message = "[" + ErrorCode.SUBSCRIBER_ID_MUST_MATCH_REGEXP + "] subscriberId must match \"{regexp}\"")
 	private String subscriberId;
-
+	
 	/**
 	 * @return the paTaxCode
 	 */
@@ -54,7 +54,7 @@ public class PresetsPathParam {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("PresetsPathParam [paTaxCode=");
+		builder.append("SubscriberPathParams [paTaxCode=");
 		builder.append(paTaxCode);
 		builder.append(", subscriberId=");
 		builder.append(subscriberId);

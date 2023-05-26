@@ -1,6 +1,3 @@
-/**
- * 
- */
 package it.pagopa.swclient.mil.preset.bean;
 
 import it.pagopa.swclient.mil.ErrorCode;
@@ -12,7 +9,7 @@ import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.HeaderParam;
 
 @MerchantIdNotNullForPos(message = ErrorCode.MERCHANT_ID_MUST_NOT_BE_NULL_FOR_POS_MSG)
-public class UnsubscriberHeaders {
+public class UnsubscribeHeaders {
 	/*
 	 * Request ID
 	 */
