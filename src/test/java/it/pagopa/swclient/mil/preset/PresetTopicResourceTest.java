@@ -11,7 +11,7 @@ import it.pagopa.swclient.mil.preset.bean.PaymentTransactionStatus;
 import it.pagopa.swclient.mil.preset.bean.PresetOperation;
 import it.pagopa.swclient.mil.preset.dao.PresetEntity;
 import it.pagopa.swclient.mil.preset.dao.PresetRepository;
-import it.pagopa.swclient.mil.preset.resource.KafkaTestResourceLifecycleManager;
+import it.pagopa.swclient.mil.preset.resource.KafkaInMemoryTestResource;
 import it.pagopa.swclient.mil.preset.util.PresetTestData;
 import it.pagopa.swclient.mil.preset.util.TestUtils;
 import jakarta.enterprise.inject.Any;
@@ -29,7 +29,7 @@ import java.util.UUID;
 
 
 @QuarkusTest
-@QuarkusTestResource(KafkaTestResourceLifecycleManager.class)
+@QuarkusTestResource(KafkaInMemoryTestResource.class)
 class PresetTopicResourceTest {
 
 	static final Logger logger = LoggerFactory.getLogger(PresetTopicResourceTest.class);

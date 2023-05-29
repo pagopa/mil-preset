@@ -15,6 +15,7 @@ import it.pagopa.swclient.mil.preset.bean.UnsubscribeHeaders;
 import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
 import it.pagopa.swclient.mil.preset.dao.SubscriberRepository;
 import it.pagopa.swclient.mil.preset.utils.DateUtils;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -28,11 +29,14 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.SecurityContext;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.net.URI;
 import java.security.SecureRandom;
@@ -44,6 +48,9 @@ public class TerminalsResource {
 
 	@Inject
 	SubscriberRepository subscriberRepository;
+
+	@Inject
+	JsonWebToken jwt;
 
 	/**
 	 * The base URL for the location header returned by the subscribe API (i.e. the API management base URL)
@@ -59,22 +66,25 @@ public class TerminalsResource {
 	 */
 	@GET
 	@Path("/{paTaxCode}")
+	@RolesAllowed({ "InstitutionPortal" })
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> getSubscribers(@Valid @BeanParam InstitutionPortalHeaders portalHeaders,
 
 										@PathParam(value = "paTaxCode")
 										@NotNull(message = "[" + ErrorCode.PA_TAX_CODE_MUST_NOT_BE_NULL + "] paTaxCode must not be null")
 										@Pattern(regexp = "^[0-9]{11}$", message = "[" + ErrorCode.PA_TAX_CODE_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
-										String paTaxCode) {
+										String paTaxCode,
 
-		Log.debugf("getSubscribers - Input parameters: %s, taxCode: %s", portalHeaders, paTaxCode);
+										@Context SecurityContext ctx) {
+
+		Log.debugf("getSubscribers - Input parameters: %s, taxCode: %s, %s", portalHeaders, paTaxCode, ctx);
 		
 		return subscriberRepository.list("subscriber.paTaxCode", paTaxCode)
 				.onFailure().transform(err -> {
-					Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_COMMUNICATION_MONGO_DB);
+					Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_READING_DATA_FROM_DB);
 					return new InternalServerErrorException(Response
 							.status(Status.INTERNAL_SERVER_ERROR)
-							.entity(new Errors(List.of(ErrorCode.ERROR_COMMUNICATION_MONGO_DB)))
+							.entity(new Errors(List.of(ErrorCode.ERROR_READING_DATA_FROM_DB)))
 							.build());
 				})
 				.map(subs -> {
@@ -109,10 +119,10 @@ public class TerminalsResource {
 								.map()
 				)
 				.onFailure().transform(err -> {
-					Log.debugf("[%s] Error while deleting data from DB", ErrorCode.ERROR_COMMUNICATION_MONGO_DB);
+					Log.debugf("[%s] Error while deleting data from DB", ErrorCode.ERROR_WRITING_DATA_IN_DB);
 					return new InternalServerErrorException(Response
 							.status(Status.INTERNAL_SERVER_ERROR)
-							.entity(new Errors(List.of(ErrorCode.ERROR_COMMUNICATION_MONGO_DB)))
+							.entity(new Errors(List.of(ErrorCode.ERROR_WRITING_DATA_IN_DB)))
 							.build());
 				})
 				.map(deleted -> {
@@ -139,7 +149,11 @@ public class TerminalsResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Uni<Response> subscribe(@Valid @BeanParam CommonHeader commonHeader, @Valid SubscribeRequest subscribeRequest) {
+	public Uni<Response> subscribe(@Valid @BeanParam CommonHeader commonHeader,
+
+								   @Valid
+								   @NotNull(message = "[" + ErrorCode.SUBSCRIBE_REQUEST_MUST_NOT_BE_EMPTY + "] request must not be empty")
+								   SubscribeRequest subscribeRequest) {
 
 		Log.debugf("subscribe - Input parameters: %s, %s", commonHeader, subscribeRequest);
 
@@ -153,9 +167,9 @@ public class TerminalsResource {
 						SubscriberEntity entity = buildSubscriberEntity(subscribeRequest, commonHeader, subscriberId);
 						return subscriberRepository.persist(entity)
 								.onFailure().transform( f -> {
-									Log.errorf(f, "[%s] Error while storing data in the DB", ErrorCode.ERROR_STORING_TERMINAL_IN_DB, subscriberId);
+									Log.errorf(f, "[%s] Error while storing data in the DB", ErrorCode.ERROR_WRITING_DATA_IN_DB, subscriberId);
 									return new InternalServerErrorException(Response.status(Status.INTERNAL_SERVER_ERROR)
-											.entity(new Errors(List.of(ErrorCode.ERROR_STORING_TERMINAL_IN_DB)))
+											.entity(new Errors(List.of(ErrorCode.ERROR_WRITING_DATA_IN_DB)))
 											.build());
 								})
 								.map(m -> {
@@ -166,7 +180,7 @@ public class TerminalsResource {
 					}
 					else {
 						final URI locationURI = buildLocationPath(subscribeRequest.getPaTaxCode(), subscriber.getSubscriberId());
-						Log.debugf("Terminal already subscribed", ErrorCode.ERROR_CONFLICT_TERMINAL_IN_DB, subscriber.getSubscriberId());
+						Log.debugf("Terminal already subscribed", ErrorCode.SUBSCRIBER_ALREADY_EXISTS, subscriber.getSubscriberId());
 						return Uni.createFrom().item(Response.status(Status.CONFLICT).location(locationURI).build());
 						}	
 					});
@@ -196,10 +210,10 @@ public class TerminalsResource {
 								.and("paTaxCode", paTaxCode)
 								.map())
 				.onFailure().transform(err -> {
-							Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_COMMUNICATION_MONGO_DB);
+							Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_READING_DATA_FROM_DB);
 							return new InternalServerErrorException(Response
 									.status(Status.INTERNAL_SERVER_ERROR)
-									.entity(new Errors(List.of(ErrorCode.ERROR_COMMUNICATION_MONGO_DB)))
+									.entity(new Errors(List.of(ErrorCode.ERROR_READING_DATA_FROM_DB)))
 									.build());
 						}
 				)

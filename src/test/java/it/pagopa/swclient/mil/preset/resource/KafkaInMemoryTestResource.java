@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-public class KafkaTestResourceLifecycleManager implements QuarkusTestResourceLifecycleManager {
+public class KafkaInMemoryTestResource implements QuarkusTestResourceLifecycleManager {
 
-    static final Logger logger = LoggerFactory.getLogger(KafkaTestResourceLifecycleManager.class);
+    static final Logger logger = LoggerFactory.getLogger(KafkaInMemoryTestResource.class);
 
     @Override
     public Map<String, String> start() {

@@ -82,9 +82,9 @@ public class PresetTopicResource {
 	private Uni<PresetEntity> updatePreset(PaymentTransaction inputPaymentTransaction, PresetEntity presetEntity) {
 		Log.debugf("Updating Preset");
 
-		if (!PaymentTransactionStatus.PRE_CLOSE.name().equals(inputPaymentTransaction.getStatus())) {
+		//if (!PaymentTransactionStatus.PRE_CLOSE.name().equals(inputPaymentTransaction.getStatus())) {
 			presetEntity.presetOperation.setStatus(PresetStatus.EXECUTED.name());
-		}
+		//}
 		presetEntity.presetOperation.setStatusTimestamp(DateUtils.getCurrentTimestamp());
 		presetEntity.presetOperation.setStatusDetails(inputPaymentTransaction);
 

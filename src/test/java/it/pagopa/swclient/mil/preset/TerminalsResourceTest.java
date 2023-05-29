@@ -172,7 +172,7 @@ class TerminalsResourceTest {
 				.response();
 
         Assertions.assertEquals(500, response.statusCode());
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_COMMUNICATION_MONGO_DB));
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_READING_DATA_FROM_DB));
         Assertions.assertNull(response.jsonPath().getJsonObject("subscribers"));
 
     }
@@ -258,7 +258,7 @@ class TerminalsResourceTest {
 				.response();
 
         Assertions.assertEquals(500, response.statusCode());
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_COMMUNICATION_MONGO_DB));
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_WRITING_DATA_IN_DB));
     }
 
     /* **** subscribe **** */
@@ -378,7 +378,7 @@ class TerminalsResourceTest {
                 .response();
 
         Assertions.assertEquals(500, response.statusCode());
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_COMMUNICATION_MONGO_DB));
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_READING_DATA_FROM_DB));
 
     }
 
@@ -409,7 +409,7 @@ class TerminalsResourceTest {
                 .response();
 
         Assertions.assertEquals(500, response.statusCode());
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_STORING_TERMINAL_IN_DB));
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_WRITING_DATA_IN_DB));
 
     }
 }

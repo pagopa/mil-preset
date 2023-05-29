@@ -22,6 +22,7 @@ import it.pagopa.swclient.mil.preset.dao.SubscriberRepository;
 import it.pagopa.swclient.mil.preset.utils.DateUtils;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -69,17 +70,21 @@ public class PresetsResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Uni<Response> createPreset(@Valid @BeanParam InstitutionPortalHeaders portalHeaders, @Valid CreatePresetRequest createPresetRequest) {
+    public Uni<Response> createPreset(@Valid @BeanParam InstitutionPortalHeaders portalHeaders,
+
+                                      @Valid
+                                      @NotNull(message = "[" + ErrorCode.CREATE_PRESET_REQUEST_MUST_NOT_BE_EMPTY + "] request must not be empty")
+                                      CreatePresetRequest createPresetRequest) {
 
         Log.debugf("createPreset - Input parameters: %s,: %s", portalHeaders, createPresetRequest);
 
         return findSubscriber(createPresetRequest.getPaTaxCode(), createPresetRequest.getSubscriberId())
                 .chain(subscriberEntity -> {
                     if (subscriberEntity == null) {
-                        Log.errorf("[%s] No subscriber found on DB", ErrorCode.ERROR_SUBSCRIBER_NOT_FOUND);
+                        Log.errorf("[%s] No subscriber found on DB", ErrorCode.SUBSCRIBER_NOT_FOUND);
                         return Uni.createFrom().item(
                                 Response.status(Status.BAD_REQUEST)
-                                        .entity(new Errors(List.of(ErrorCode.ERROR_SUBSCRIBER_NOT_FOUND)))
+                                        .entity(new Errors(List.of(ErrorCode.SUBSCRIBER_NOT_FOUND)))
                                         .build());
                     } else {
                         // update last usage timestamp
@@ -158,10 +163,10 @@ public class PresetsResource {
 
         return subscriberRepository.list(SUBSCRIBER_FILTER, Parameters.with("paTaxCode", paTaxCode).and("subscriberId", subscriberId).map())
                 .onFailure().transform(err -> {
-                    Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_COMMUNICATION_MONGO_DB);
+                    Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_READING_DATA_FROM_DB);
                     return new InternalServerErrorException(
 							Response.status(Status.INTERNAL_SERVER_ERROR)
-									.entity(new Errors(List.of(ErrorCode.ERROR_COMMUNICATION_MONGO_DB)))
+									.entity(new Errors(List.of(ErrorCode.ERROR_READING_DATA_FROM_DB)))
 									.build());
                 })
                 .map(entityList -> entityList.isEmpty() ? null : entityList.get(0));
@@ -178,10 +183,10 @@ public class PresetsResource {
 
         return presetRepository.list(PRESET_FILTER, Parameters.with("paTaxCode", paTaxCode).and("subscriberId", subscriberId).map())
                 .onFailure().transform(err -> {
-                    Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_COMMUNICATION_MONGO_DB);
+                    Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_READING_DATA_FROM_DB);
                     return new InternalServerErrorException(
 							Response.status(Status.INTERNAL_SERVER_ERROR)
-									.entity(new Errors(List.of(ErrorCode.ERROR_COMMUNICATION_MONGO_DB)))
+									.entity(new Errors(List.of(ErrorCode.ERROR_READING_DATA_FROM_DB)))
 									.build());
                 })
                 .map(entities -> entities.stream().map(entity -> entity.presetOperation).toList());
@@ -205,10 +210,10 @@ public class PresetsResource {
 						)
 				.firstResult()
                 .onFailure().transform(err -> {
-                            Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_COMMUNICATION_MONGO_DB);
+                            Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_READING_DATA_FROM_DB);
                             return new InternalServerErrorException(
 									Response.status(Status.INTERNAL_SERVER_ERROR)
-											.entity(new Errors(List.of(ErrorCode.ERROR_COMMUNICATION_MONGO_DB)))
+											.entity(new Errors(List.of(ErrorCode.ERROR_READING_DATA_FROM_DB)))
 											.build());
                         }
                 )
@@ -244,10 +249,10 @@ public class PresetsResource {
 
         return presetRepository.persist(entity)
                 .onFailure().transform(f -> {
-                    Log.errorf(f, "[%s] Error while storing data in the DB", ErrorCode.ERROR_STORING_TERMINAL_IN_DB);
+                    Log.errorf(f, "[%s] Error while storing data in the DB", ErrorCode.ERROR_WRITING_DATA_IN_DB);
                     return new InternalServerErrorException(
                             Response.status(Status.INTERNAL_SERVER_ERROR)
-                                    .entity(new Errors(List.of(ErrorCode.ERROR_STORING_TERMINAL_IN_DB)))
+                                    .entity(new Errors(List.of(ErrorCode.ERROR_WRITING_DATA_IN_DB)))
                                     .build());
                 });
 

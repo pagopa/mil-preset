@@ -41,9 +41,9 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 @TestHTTPEndpoint(PresetsResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class PresetResourceTest {
+class PresetsResourceTest {
 
-    static final Logger logger = LoggerFactory.getLogger(PresetResourceTest.class);
+    static final Logger logger = LoggerFactory.getLogger(PresetsResourceTest.class);
 
     final static String SESSION_ID = "a6a666e6-97da-4848-b568-99fedccb642c";
     final static String API_VERSION = "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay";
@@ -273,7 +273,7 @@ class PresetResourceTest {
 
         Assertions.assertEquals(400, response.statusCode());
         Assertions.assertNull(response.getHeader("Location"));
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_SUBSCRIBER_NOT_FOUND));
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.SUBSCRIBER_NOT_FOUND));
     }
 
     @Test
@@ -301,7 +301,7 @@ class PresetResourceTest {
                 .response();
 
         Assertions.assertEquals(500, response.statusCode());
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_COMMUNICATION_MONGO_DB));
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_READING_DATA_FROM_DB));
         Assertions.assertNull(response.getHeader("Location"));
     }
 
@@ -339,7 +339,7 @@ class PresetResourceTest {
                 .response();
 
         Assertions.assertEquals(500, response.statusCode());
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_STORING_TERMINAL_IN_DB));
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_WRITING_DATA_IN_DB));
         Assertions.assertNull(response.getHeader("Location"));
 
     }
@@ -493,7 +493,7 @@ class PresetResourceTest {
                 .response();
 
         Assertions.assertEquals(500, response.statusCode());
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_COMMUNICATION_MONGO_DB));
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_READING_DATA_FROM_DB));
         Assertions.assertNull(response.getHeader("Location"));
 
     }
@@ -595,7 +595,7 @@ class PresetResourceTest {
                 .response();
 
         Assertions.assertEquals(500, response.statusCode());
-        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_COMMUNICATION_MONGO_DB));
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_READING_DATA_FROM_DB));
 
     }
 }

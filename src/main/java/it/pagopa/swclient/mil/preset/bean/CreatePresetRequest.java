@@ -12,7 +12,7 @@ public class CreatePresetRequest {
 	/*
 	 * 	Operation of payment of a notice
 	 */
-	@NotNull(message = "[" + ErrorCode.PA_TAX_CODE_MUST_NOT_BE_NULL + "] operationType must not be null")
+	@NotNull(message = "[" + ErrorCode.OPERATION_TYPE_MUST_NOT_BE_NULL + "] operationType must not be null")
 	@Pattern(regexp = "PAYMENT_NOTICE", message = "[" + ErrorCode.OPERATION_TYPE_MUST_MATCH_REGEXP + "] operationType must match \"{regexp}\"")
 	private String operationType;
 
@@ -43,8 +43,8 @@ public class CreatePresetRequest {
 	/*
 	 * Notice number
 	 */
-	@NotNull(message = "[" + ErrorCode.SUBSCRIBER_ID_MUST_NOT_BE_NULL + "] noticeNumber must not be null")
-	@Pattern(regexp = "^[0-9]{18}$", message = "[" + ErrorCode.SUBSCRIBER_ID_MUST_MATCH_REGEXP + "] noticeNumber must match \"{regexp}\"")
+	@NotNull(message = "[" + ErrorCode.NOTICE_NUMBER_MUST_NOT_BE_NULL + "] noticeNumber must not be null")
+	@Pattern(regexp = "^[0-9]{18}$", message = "[" + ErrorCode.NOTICE_NUMBER_MUST_MATCH_REGEXP + "] noticeNumber must match \"{regexp}\"")
 	private String noticeNumber;
 
 	/**
