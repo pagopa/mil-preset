@@ -1,20 +1,18 @@
 package it.pagopa.swclient.mil.preset.resource;
 
-import java.util.Map;
-
+import com.google.common.collect.ImmutableMap;
+import io.quarkus.test.common.DevServicesContext;
+import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.Container.ExecResult;
 import org.testcontainers.containers.Network;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.redpanda.RedpandaContainer;
 import org.testcontainers.utility.DockerImageName;
 
-import com.google.common.collect.ImmutableMap;
-
-import io.quarkus.test.common.DevServicesContext;
-import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import java.util.Map;
 
 public class RedpandaTestResource implements QuarkusTestResourceLifecycleManager, DevServicesContext.ContextAware {
     
@@ -46,51 +44,27 @@ public class RedpandaTestResource implements QuarkusTestResourceLifecycleManager
 					.withNetwork(getNetwork())
 					.withNetworkAliases(REDPANDA_NETWORK_ALIAS);
 
-//			redpandaContainer.withLogConsumer(new Slf4jLogConsumer(logger));
-			 
-			
-			
-			//redpandaContainer.withFileSystemBind("./src/test/resources/it/mongo", "/home/mongo");
-			//redpandaContainer.setCommand("--verbose");
-			redpandaContainer.start();
-			
-			try {
-				ExecResult result = redpandaContainer.execInContainer("rpk", "cluster", "config",  "set", "enable_sasl", "true");
-				logger.info("1>>>>>>>>>>>>>>>>>>>>>!!!!!!!!!!!!!!!><: {}", result.toString());
-				result = redpandaContainer.execInContainer( "rpk", "acl", "user", "create", "admin", "-p", "12345678");
-				logger.info("2>>>>>>>>>>>>>>>>>>>>>!!!!!!!!!!!!!!!><: {}", result.toString());
-				result = redpandaContainer.execInContainer( "rpk", "cluster", "config", "set", "superusers", "['admin']");
-				
-				logger.info("3>>>>>>>>>>>>>>>>>>>>>!!!!!!!!!!!!!!!><: {}", result.toString());
-				result = redpandaContainer.execInContainer("rpk", "acl", "user", "create", "testuser", "-p", "testuser");
-				logger.info("4>>>>>>>>>>>>>>>>>>>>>!!!!!!!!!!!!!!!><: {}", result.toString());
-				result = redpandaContainer.execInContainer("rpk", "acl", "create",  "--allow-principal", "*", "--operation", "all",
-						"--topic", "presets", "--user", "admin", "--password", "12345678", "--sasl-mechanism", "SCRAM-SHA-256" );
-				            
-				logger.info("5>>>>>>>>>>>>>>>>>>>>>!!!!!!!!!!!!!!!><: {}", result.toString());
+			redpandaContainer.withLogConsumer(new Slf4jLogConsumer(logger, true));
 
-				
-//				String stdout = result.getStdout();
-			
-			}catch (Exception e) {
-				logger.error(">>>>>>>>>>>>>>>>>>>!!!!!!!!!!!!11>Error ",e);
+			redpandaContainer.start();
+
+			try {
+				logger.info(redpandaContainer.execInContainer("rpk", "cluster", "config", "set", "enable_sasl", "true").toString());
+
+				logger.info(redpandaContainer.execInContainer("rpk", "acl", "user", "create", "admin", "-p", "12345678").toString());
+
+				logger.info(redpandaContainer.execInContainer("rpk", "cluster", "config", "set", "superusers", "['admin']").toString());
+
+				logger.info(redpandaContainer.execInContainer("rpk", "acl", "user", "create", "testuser", "-p", "testuser").toString());
+
+				logger.info(redpandaContainer.execInContainer("rpk", "acl", "create", "--allow-principal", "*", "--operation", "all",
+						"--topic", "presets", "--user", "admin", "--password", "12345678", "--sasl-mechanism", "SCRAM-SHA-256").toString());
+
 			}
-//			try {
-////				ExecResult result = redpandaContainer.execInContainer("bash", "rpk", "cluster", "config", "set", "superusers", "['admin']");
-////				logger.info(">>>>>>>>>>>>>>>>>>>>>><: {}", result.toString());
-//				
-//				
-//				
-//				
-//				
-////				result = redpandaContainer.execInContainer("rpk", "acl", "create",  "--allow-principal", "User:testuser", "--operation", "create,describe",
-////						"--cluster", "--user", "suname", "--password", "12345678", "--sasl-mechanism", "SCRAM-SHA-256");
-////				logger.info(">>>>>>>>>>>>>>>>>>>>>!!!!!!!!!!!!!!!><: {}", result.toString());
-////				String stdout = result.getStdout();
-//				
-//			}catch (Exception e) {
-//				logger.error(">>>>>>>>>>>>>>>>>>>>Error ",e);
-//			}
+			catch (Exception e) {
+				logger.error("Error while executing commands in container", e);
+			}
+
 			final Integer exposedPort = redpandaContainer.getMappedPort(9092);
 			final String bootstrapServers = redpandaContainer.getBootstrapServers();
 			logger.info("Redpanda bootstrap servers: {}", bootstrapServers);
@@ -102,15 +76,14 @@ public class RedpandaTestResource implements QuarkusTestResourceLifecycleManager
 
 			// Pass the configuration to the application under test
 			return ImmutableMap.of(
-					"kafka-bootstrap-server", REDPANDA_NETWORK_ALIAS + ":" + 29092,
-					"kafka-security-protocol", "SASL_PLAINTEXT",
-					"kafka-sasl-mechanism","SCRAM-SHA-256",
-					"kafka-sasl-jaas-config","org.apache.kafka.common.security.scram.ScramLoginModule required username=\"testuser\" password=\"testuser\";"
+					"kafka-bootstrap-server", REDPANDA_NETWORK_ALIAS + ":" + 29092
 			);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			logger.error("Error while starting redpanda", e);
 			throw e;
 		}
+
 	}
 
 	// create a "fake" network using the same id as the one that will be used by Quarkus
@@ -120,13 +93,11 @@ public class RedpandaTestResource implements QuarkusTestResourceLifecycleManager
 		return new Network() {
 			@Override
 			public String getId() {
-				return devServicesContext.containerNetworkId().get();
+				return devServicesContext.containerNetworkId().orElse(null);
 			}
 
 			@Override
-			public void close() {
-
-			}
+			public void close() {}
 
 			@Override
 			public Statement apply(Statement statement, Description description) {
@@ -139,7 +110,7 @@ public class RedpandaTestResource implements QuarkusTestResourceLifecycleManager
 	public void stop() {
 		if (null != redpandaContainer) {
 			logger.info("Stopping Redpanda container...");
-			
+
 			redpandaContainer.stop();
 			logger.info("Redpanda container stopped");
 		}

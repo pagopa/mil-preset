@@ -49,8 +49,27 @@ import it.pagopa.swclient.mil.preset.bean.PresetOperation;
 import it.pagopa.swclient.mil.preset.dao.PresetEntity;
 import it.pagopa.swclient.mil.preset.util.PresetTestData;
 import it.pagopa.swclient.mil.preset.utils.DateUtils;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.conversions.Bson;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.shaded.org.awaitility.Awaitility;
 
-@Disabled
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
+
 @QuarkusIntegrationTest
 @TestProfile(IntegrationTestProfile.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -84,11 +103,6 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 		// initialize kafka producer
 		Properties kafkaConfig = new Properties();
 		kafkaConfig.put("bootstrap.servers", devServicesContext.devServicesProperties().get("test.kafka.bootstrap-server"));
-//		kafkaConfig.put("bootstrap.servers", "localhost:19092");
-		kafkaConfig.put("security.protocol", "SASL_PLAINTEXT");
-		kafkaConfig.put("sasl.mechanism","SCRAM-SHA-256");
-		kafkaConfig.put("sasl.jaas.config","org.apache.kafka.common.security.scram.ScramLoginModule required username=\"testuser\" password=\"testuser\";");
-		
 		kafkaConfig.put("linger.ms", 1);
 
 		paymentTransactionProducer = new KafkaProducer<>(kafkaConfig, new StringSerializer(), new ObjectMapperSerializer<>());
@@ -114,28 +128,11 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 
 		String currentTimestamp = DateUtils.getCurrentTimestamp();
 
-		logger.info("-------------------------------------------------------------------");
-		Future<RecordMetadata> resp = paymentTransactionProducer.send(new ProducerRecord<>("presets", paymentTransaction));
-	
-		try {
-			RecordMetadata r = resp.get(10, TimeUnit.SECONDS);
-			
-			logger.info("DONE {}", resp.isDone());
-			logger.info("TOPIC {}", r.topic()); 
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			e.printStackTrace();
-		}
+		paymentTransactionProducer.send(new ProducerRecord<>("presets", paymentTransaction));
 
-		logger.info("-------------------------------------------------------------------");
-		
-		Awaitility.await().pollDelay(Duration.ofSeconds(2)).until(() -> {
+		Awaitility.await().until(() -> {
 			PresetOperation presetOperation = getPresetOperation(presetId);
-//			return presetOperation.getStatusTimestamp().compareTo(currentTimestamp) > 0;
-			return presetOperation.getStatus().equals(PresetStatus.EXECUTED.name());
+			return presetOperation.getStatusTimestamp().compareTo(currentTimestamp) > 0;
 		});
 
 		checkDatabaseData(presetId, PresetStatus.EXECUTED, paymentTransaction);

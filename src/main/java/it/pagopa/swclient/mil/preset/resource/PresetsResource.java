@@ -46,6 +46,8 @@ public class PresetsResource {
 	public static final String PRESET_FILTER = "presetOperation.paTaxCode = :paTaxCode and presetOperation.subscriberId = :subscriberId";
 
     public static final String LAST_PRESET_FILTER = PRESET_FILTER + " and presetOperation.status = 'TO_EXECUTE'";
+    public static final String PA_TAX_CODE = "paTaxCode";
+    public static final String SUBSCRIBER_ID = "subscriberId";
 
     /**
      * The base URL for the location header returned by the createPreset API (i.e. the API management base URL)
@@ -161,14 +163,8 @@ public class PresetsResource {
      */
     private Uni<SubscriberEntity> findSubscriber(String paTaxCode, String subscriberId) {
 
-        return subscriberRepository.list(SUBSCRIBER_FILTER, Parameters.with("paTaxCode", paTaxCode).and("subscriberId", subscriberId).map())
-                .onFailure().transform(err -> {
-                    Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_READING_DATA_FROM_DB);
-                    return new InternalServerErrorException(
-							Response.status(Status.INTERNAL_SERVER_ERROR)
-									.entity(new Errors(List.of(ErrorCode.ERROR_READING_DATA_FROM_DB)))
-									.build());
-                })
+        return subscriberRepository.list(SUBSCRIBER_FILTER, Parameters.with(PA_TAX_CODE, paTaxCode).and(SUBSCRIBER_ID, subscriberId).map())
+                .onFailure().transform(PresetsResource::manageDbReadError)
                 .map(entityList -> entityList.isEmpty() ? null : entityList.get(0));
     }
 
@@ -181,14 +177,8 @@ public class PresetsResource {
      */
     private Uni<List<PresetOperation>> findPresetOperations(String paTaxCode, String subscriberId) {
 
-        return presetRepository.list(PRESET_FILTER, Parameters.with("paTaxCode", paTaxCode).and("subscriberId", subscriberId).map())
-                .onFailure().transform(err -> {
-                    Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_READING_DATA_FROM_DB);
-                    return new InternalServerErrorException(
-							Response.status(Status.INTERNAL_SERVER_ERROR)
-									.entity(new Errors(List.of(ErrorCode.ERROR_READING_DATA_FROM_DB)))
-									.build());
-                })
+        return presetRepository.list(PRESET_FILTER, Parameters.with(PA_TAX_CODE, paTaxCode).and(SUBSCRIBER_ID, subscriberId).map())
+                .onFailure().transform(PresetsResource::manageDbReadError)
                 .map(entities -> entities.stream().map(entity -> entity.presetOperation).toList());
     }
 
@@ -204,22 +194,14 @@ public class PresetsResource {
         return presetRepository.find(LAST_PRESET_FILTER,
                         Sort.by("presetOperation.creationTimestamp").descending(),
                         Parameters
-                                .with("paTaxCode", paTaxCode)
-                                .and("subscriberId", subscriberId)
+                                .with(PA_TAX_CODE, paTaxCode)
+                                .and(SUBSCRIBER_ID, subscriberId)
                                 .map()
 						)
 				.firstResult()
-                .onFailure().transform(err -> {
-                            Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_READING_DATA_FROM_DB);
-                            return new InternalServerErrorException(
-									Response.status(Status.INTERNAL_SERVER_ERROR)
-											.entity(new Errors(List.of(ErrorCode.ERROR_READING_DATA_FROM_DB)))
-											.build());
-                        }
-                )
+                .onFailure().transform(PresetsResource::manageDbReadError)
 				.map(presetEntity -> presetEntity != null ? presetEntity.presetOperation : null);
     }
-
 
     /**
      * Update the subscriber info
@@ -308,4 +290,13 @@ public class PresetsResource {
         location.append(presetId);
         return URI.create(presetLocationBaseURL + location.toString());
     }
+
+    private static InternalServerErrorException manageDbReadError(Throwable err) {
+        Log.errorf(err, "[%s] Error while retrieving data from DB", ErrorCode.ERROR_READING_DATA_FROM_DB);
+        return new InternalServerErrorException(
+                Response.status(Status.INTERNAL_SERVER_ERROR)
+                        .entity(new Errors(List.of(ErrorCode.ERROR_READING_DATA_FROM_DB)))
+                        .build());
+    }
+
 }

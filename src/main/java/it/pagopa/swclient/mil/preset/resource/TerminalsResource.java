@@ -48,9 +48,6 @@ public class TerminalsResource {
 	@Inject
 	SubscriberRepository subscriberRepository;
 
-//	@Inject
-//	JsonWebToken jwt;
-
 	/**
 	 * The base URL for the location header returned by the subscribe API (i.e. the API management base URL)
 	 */
@@ -65,7 +62,6 @@ public class TerminalsResource {
 	 */
 	@GET
 	@Path("/{paTaxCode}")
-//	@RolesAllowed({ "InstitutionPortal" })
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> getSubscribers(@Valid @BeanParam InstitutionPortalHeaders portalHeaders,
 

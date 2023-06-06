@@ -19,6 +19,7 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
 
         configOverrides.put("preset.quarkus-log-level", "INFO");
         configOverrides.put("preset.app-log-level", "DEBUG");
+        configOverrides.put("preset.location.base-url", "https://mil-d-apim.azure-api.net/mil-payment-notice");
 
         return configOverrides;
     }
@@ -26,7 +27,7 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
     @Override
     public List<TestResourceEntry> testResources() {
         return ImmutableList.of(
-                new TestResourceEntry(MongoTestResource.class) ,
+                new TestResourceEntry(MongoTestResource.class),
                 new TestResourceEntry(RedpandaTestResource.class)
         );
     }

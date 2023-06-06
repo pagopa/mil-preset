@@ -5,7 +5,6 @@ package it.pagopa.swclient.mil.preset.bean;
 
 import it.pagopa.swclient.mil.preset.ErrorCode;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Pattern;
 
 public class SubscribeRequest {

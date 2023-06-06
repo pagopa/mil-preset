@@ -6,7 +6,6 @@ import io.smallrye.mutiny.Uni;
 import io.smallrye.mutiny.unchecked.Unchecked;
 import it.pagopa.swclient.mil.preset.PresetStatus;
 import it.pagopa.swclient.mil.preset.bean.PaymentTransaction;
-import it.pagopa.swclient.mil.preset.bean.PaymentTransactionStatus;
 import it.pagopa.swclient.mil.preset.dao.PresetEntity;
 import it.pagopa.swclient.mil.preset.dao.PresetRepository;
 import it.pagopa.swclient.mil.preset.utils.DateUtils;
@@ -35,12 +34,8 @@ public class PresetTopicResource {
 				.chain(entity -> updatePreset(paymentTransaction, entity))
 				.subscribe()
 				.with(
-						item -> {
-							Log.debugf("Item updated %s", item);
-						},
-						error -> {
-							Log.debugf("Error while updating item", error);
-						}
+						item -> Log.debugf("Item updated %s", item),
+						error -> Log.debugf("Error while updating item", error)
 				);
 	}
 
@@ -82,9 +77,7 @@ public class PresetTopicResource {
 	private Uni<PresetEntity> updatePreset(PaymentTransaction inputPaymentTransaction, PresetEntity presetEntity) {
 		Log.debugf("Updating Preset");
 
-		//if (!PaymentTransactionStatus.PRE_CLOSE.name().equals(inputPaymentTransaction.getStatus())) {
-			presetEntity.presetOperation.setStatus(PresetStatus.EXECUTED.name());
-		//}
+		presetEntity.presetOperation.setStatus(PresetStatus.EXECUTED.name());
 		presetEntity.presetOperation.setStatusTimestamp(DateUtils.getCurrentTimestamp());
 		presetEntity.presetOperation.setStatusDetails(inputPaymentTransaction);
 
