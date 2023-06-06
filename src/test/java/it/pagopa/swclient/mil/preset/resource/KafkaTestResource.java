@@ -84,7 +84,8 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager, D
                         "--partitions", "1",
                         "--topic", "presets",
                         "--command-config", "tmp/config.properties").toString());
-            } catch (UnsupportedOperationException | IOException | InterruptedException e) {
+            }
+            catch (UnsupportedOperationException | IOException | InterruptedException e) {
                 logger.error("Could not create topic", e);
             }
 

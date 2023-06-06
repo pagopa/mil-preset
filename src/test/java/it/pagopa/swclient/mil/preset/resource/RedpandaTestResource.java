@@ -50,16 +50,14 @@ public class RedpandaTestResource implements QuarkusTestResourceLifecycleManager
 
 			try {
 				logger.info(redpandaContainer.execInContainer("rpk", "cluster", "config", "set", "enable_sasl", "true").toString());
-
 				logger.info(redpandaContainer.execInContainer("rpk", "acl", "user", "create", "admin", "-p", "12345678").toString());
-
 				logger.info(redpandaContainer.execInContainer("rpk", "cluster", "config", "set", "superusers", "['admin']").toString());
-
 				logger.info(redpandaContainer.execInContainer("rpk", "acl", "user", "create", "testuser", "-p", "testuser").toString());
-
-				logger.info(redpandaContainer.execInContainer("rpk", "acl", "create", "--allow-principal", "*", "--operation", "all",
-						"--topic", "presets", "--user", "admin", "--password", "12345678", "--sasl-mechanism", "SCRAM-SHA-256").toString());
-
+				logger.info(redpandaContainer.execInContainer("rpk", "acl", "create",
+						"--allow-principal", "*", "--operation", "all", "--topic", "presets", "--group", "preset-processor",
+						"--user", "admin", "--password", "12345678", "--sasl-mechanism", "SCRAM-SHA-256").toString());
+				logger.info(redpandaContainer.execInContainer("rpk", "topic", "create", "presets", "--user", "testuser", "--password", "testuser",
+						"--sasl-mechanism", "SCRAM-SHA-256").toString() );
 			}
 			catch (Exception e) {
 				logger.error("Error while executing commands in container", e);
@@ -76,11 +74,14 @@ public class RedpandaTestResource implements QuarkusTestResourceLifecycleManager
 
 			// Pass the configuration to the application under test
 			return ImmutableMap.of(
-					"kafka-bootstrap-server", REDPANDA_NETWORK_ALIAS + ":" + 29092
+					"kafka-bootstrap-server", REDPANDA_NETWORK_ALIAS + ":" + 29092,
+					"kafka-security-protocol", "SASL_PLAINTEXT",
+					"kafka-sasl-mechanism","SCRAM-SHA-256",
+					"kafka-sasl-jaas-config","org.apache.kafka.common.security.scram.ScramLoginModule required username=\"testuser\" password=\"testuser\";"
 			);
 		}
 		catch (Exception e) {
-			logger.error("Error while starting redpanda", e);
+			logger.error("Error while starting Redpanda", e);
 			throw e;
 		}
 

@@ -1,33 +1,5 @@
 package it.pagopa.swclient.mil.preset.it;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.serialization.StringSerializer;
-import org.bson.codecs.configuration.CodecRegistries;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-import org.bson.conversions.Bson;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.shaded.org.awaitility.Awaitility;
-
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
@@ -35,7 +7,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
-
 import io.quarkus.kafka.client.serialization.ObjectMapperSerializer;
 import io.quarkus.test.common.DevServicesContext;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
@@ -65,10 +36,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @QuarkusIntegrationTest
 @TestProfile(IntegrationTestProfile.class)
@@ -103,6 +77,9 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 		// initialize kafka producer
 		Properties kafkaConfig = new Properties();
 		kafkaConfig.put("bootstrap.servers", devServicesContext.devServicesProperties().get("test.kafka.bootstrap-server"));
+		kafkaConfig.put("security.protocol", "SASL_PLAINTEXT");
+		kafkaConfig.put("sasl.mechanism","SCRAM-SHA-256");
+		kafkaConfig.put("sasl.jaas.config","org.apache.kafka.common.security.scram.ScramLoginModule required username=\"testuser\" password=\"testuser\";");
 		kafkaConfig.put("linger.ms", 1);
 
 		paymentTransactionProducer = new KafkaProducer<>(kafkaConfig, new StringSerializer(), new ObjectMapperSerializer<>());
@@ -130,10 +107,13 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 
 		paymentTransactionProducer.send(new ProducerRecord<>("presets", paymentTransaction));
 
-		Awaitility.await().until(() -> {
-			PresetOperation presetOperation = getPresetOperation(presetId);
-			return presetOperation.getStatusTimestamp().compareTo(currentTimestamp) > 0;
-		});
+		Awaitility
+				.with().pollInterval(10, TimeUnit.SECONDS)
+				.and().timeout(Duration.of(30, ChronoUnit.SECONDS))
+				.await().until(() -> {
+					PresetOperation presetOperation = getPresetOperation(presetId);
+					return presetOperation.getStatusTimestamp().compareTo(currentTimestamp) > 0;
+				});
 
 		checkDatabaseData(presetId, PresetStatus.EXECUTED, paymentTransaction);
 
