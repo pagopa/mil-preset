@@ -82,10 +82,11 @@
 		    <groupId>io.quarkus</groupId>
 		    <artifactId>quarkus-smallrye-reactive-messaging-kafka</artifactId>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-smallrye-jwt</artifactId>
-		</dependency>
+		</dependency> -->
 		<dependency>
 		    <groupId>io.smallrye.reactive</groupId>
 		    <artifactId>smallrye-reactive-messaging-in-memory</artifactId>

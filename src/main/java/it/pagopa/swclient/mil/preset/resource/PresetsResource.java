@@ -202,7 +202,7 @@ public class PresetsResource {
     private Uni<PresetOperation> findLatestPresetOperation(String paTaxCode, String subscriberId) {
 
         return presetRepository.find(LAST_PRESET_FILTER,
-                        Sort.by("creationTimestamp").descending(),
+                        Sort.by("presetOperation.creationTimestamp").descending(),
                         Parameters
                                 .with("paTaxCode", paTaxCode)
                                 .and("subscriberId", subscriberId)

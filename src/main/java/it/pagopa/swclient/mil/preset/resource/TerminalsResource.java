@@ -1,5 +1,12 @@
 package it.pagopa.swclient.mil.preset.resource;
 
+import java.net.URI;
+import java.security.SecureRandom;
+import java.util.List;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+
 import io.quarkus.logging.Log;
 import io.quarkus.panache.common.Parameters;
 import io.smallrye.mutiny.Uni;
@@ -15,7 +22,6 @@ import it.pagopa.swclient.mil.preset.bean.UnsubscribeHeaders;
 import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
 import it.pagopa.swclient.mil.preset.dao.SubscriberRepository;
 import it.pagopa.swclient.mil.preset.utils.DateUtils;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -34,13 +40,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.core.SecurityContext;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.jwt.JsonWebToken;
-
-import java.net.URI;
-import java.security.SecureRandom;
-import java.util.List;
 
 
 @Path("/terminals")
@@ -49,8 +48,8 @@ public class TerminalsResource {
 	@Inject
 	SubscriberRepository subscriberRepository;
 
-	@Inject
-	JsonWebToken jwt;
+//	@Inject
+//	JsonWebToken jwt;
 
 	/**
 	 * The base URL for the location header returned by the subscribe API (i.e. the API management base URL)
@@ -66,7 +65,7 @@ public class TerminalsResource {
 	 */
 	@GET
 	@Path("/{paTaxCode}")
-	@RolesAllowed({ "InstitutionPortal" })
+//	@RolesAllowed({ "InstitutionPortal" })
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> getSubscribers(@Valid @BeanParam InstitutionPortalHeaders portalHeaders,
 

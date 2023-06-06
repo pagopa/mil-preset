@@ -1,5 +1,20 @@
 package it.pagopa.swclient.mil.preset;
 
+import static io.restassured.RestAssured.given;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.mockito.InjectMock;
@@ -11,20 +26,6 @@ import it.pagopa.swclient.mil.preset.bean.Subscriber;
 import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
 import it.pagopa.swclient.mil.preset.dao.SubscriberRepository;
 import it.pagopa.swclient.mil.preset.resource.TerminalsResource;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeoutException;
-
-import static io.restassured.RestAssured.given;
 
 
 @QuarkusTest
@@ -77,6 +78,7 @@ class TerminalsResourceTest {
 
     /* ****  get Subscribers **** */
     @Test
+//    @TestSecurity( roles = {"InstitutionPortal"})
     void getSubscribers_200() {
 
         Mockito

@@ -52,13 +52,16 @@ public class MongoTestResource implements QuarkusTestResourceLifecycleManager, D
 		final Integer exposedPort = mongoContainer.getMappedPort(27017);
 		devServicesContext.devServicesProperties().put("test.mongo.exposed-port", exposedPort.toString());
 
-        try {
-			ExecResult result = mongoContainer.execInContainer("mongosh", "<", "/home/mongo/mongoInit.js");
-			logger.info("Init script result {}", result);
-		}
-		catch (Exception e) {
-			logger.error("Error while importing data into DB", e);
-		}
+//        try {
+//        	ExecResult ls = mongoContainer.execInContainer("ls", "-lrt", "/home/mongo/");
+//			logger.info("ls {}", ls);
+//			
+//			ExecResult result = mongoContainer.execInContainer("mongosh", "<", "/home/mongo/mongoInit.js");
+//			logger.info("Init script result {}", result);
+//		}
+//		catch (Exception e) {
+//			logger.error("Error while importing data into DB", e);
+//		}
 
         // Pass the configuration to the application under test
 		return ImmutableMap.of(
