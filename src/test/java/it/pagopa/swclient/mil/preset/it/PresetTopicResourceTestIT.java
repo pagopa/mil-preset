@@ -112,7 +112,8 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 				.and().timeout(Duration.of(30, ChronoUnit.SECONDS))
 				.await().until(() -> {
 					PresetOperation presetOperation = getPresetOperation(presetId);
-					return presetOperation.getStatusTimestamp().compareTo(currentTimestamp) > 0;
+					//return presetOperation.getStatusTimestamp().compareTo(currentTimestamp) > 0;
+					return presetOperation.getStatus().equals(PresetStatus.EXECUTED.name());
 				});
 
 		checkDatabaseData(presetId, PresetStatus.EXECUTED, paymentTransaction);
