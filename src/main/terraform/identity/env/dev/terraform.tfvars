@@ -9,3 +9,4 @@ github_repository_environment_cd = {
     "infrastructure-admins",
     "mil-team",
   ]
+}
