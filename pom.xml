@@ -11,15 +11,23 @@
 		<maven.compiler.release>${java.version}</maven.compiler.release>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
-		<compiler-plugin.version>3.8.1</compiler-plugin.version>
-		<surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
+		<compiler-plugin.version>3.11.0</compiler-plugin.version>
+		<surefire-plugin.version>3.0.0</surefire-plugin.version>
+		<sonar-plugin.version>3.9.1.2184</sonar-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
 		<quarkus.platform.version>3.1.0.Final</quarkus.platform.version>
-		<common.version>2.0.1</common.version>
 		<skipITs>true</skipITs>
+		<depcheck-plugin.version>1.1.1</depcheck-plugin.version>
+		<common.version>2.0.2</common.version>
+		<sonar.host.url>https://sonarcloud.io:443/</sonar.host.url>
+		<sonar.organization>pagopa</sonar.organization>
+		<sonar.projectKey>pagopa_mil-preset</sonar.projectKey>
+		<sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+		<sonar.qualitygate.timeout>300</sonar.qualitygate.timeout>
+		<sonar.coverage.jacoco.xmlReportPaths>target/jacoco-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -73,6 +81,7 @@
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-container-image-docker</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 		    <groupId>io.quarkus</groupId>
@@ -133,6 +142,18 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/pagopa/mil-common</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/pagopa/depcheck</url>
+		</pluginRepository>
+	</pluginRepositories>
 	<build>
 		<plugins>
 			<plugin>
@@ -195,46 +216,27 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>it.pagopa.maven</groupId>
+				<artifactId>depcheck</artifactId>
+				<version>${depcheck-plugin.version}</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<fileName>dep-sha256.json</fileName>
+					<includePlugins>false</includePlugins>
+					<includeParent>false</includeParent>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 	<profiles>
-		<!-- To clone and install dependencies:                                 -->
-		<!--   mvn clean validate -Pbootstrap -Dmaven.home=<path to Maven home> -->
-		<profile>
-			<id>bootstrap</id>
-			<activation>
-				<property>
-					<name>bootstrap</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-scm-plugin</artifactId>
-						<version>2.0.0-M3</version>
-						<configuration>
-							<mavenHome>${maven.home}</mavenHome>
-							<goals>install</goals>
-						</configuration>
-						<executions>
-							<execution>
-								<id>clone_and_install_mil-common</id>
-								<phase>validate</phase>
-								<configuration>
-									<connectionUrl>scm:git:https://github.com/pagopa/mil-common.git</connectionUrl>
-									<scmVersionType>tag</scmVersionType>
-									<scmVersion>${common.version}</scmVersion>
-								</configuration>
-								<goals>
-									<goal>bootstrap</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
 		<profile>
 			<id>native</id>
 			<activation>
@@ -247,31 +249,31 @@
 				<quarkus.package.type>native</quarkus.package.type>
 			</properties>
 		</profile>
+		<!-- To execute SCA with SonarCloud:                                      -->
+		<!--   1. export SONAR_TOKEN=<sonar token provided by PagoPA DevOps team> -->
+		<!--   2. mvn verify -Pvalidate                                       -->
 		<profile>
-			<id>coverage</id>
+			<id>validate</id>
+			<activation>
+				<property>
+					<name>validate</name>
+				</property>
+			</activation>
 			<build>
 				<plugins>
+					<!-- SCA with Sonar -->
 					<plugin>
-						<groupId>org.jacoco</groupId>
-						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.8</version>
+						<groupId>org.sonarsource.scanner.maven</groupId>
+						<artifactId>sonar-maven-plugin</artifactId>
+						<version>${sonar-plugin.version}</version>
 						<executions>
 							<execution>
-								<id>prepare-agent</id>
+								<id>sca_with_sonar</id>
+								<!-- after test -->
+								<phase>test</phase>
 								<goals>
-									<goal>prepare-agent</goal>
+									<goal>sonar</goal>
 								</goals>
-							</execution>
-							<execution>
-								<id>report</id>
-								<goals>
-									<goal>report</goal>
-								</goals>
-								<configuration>
-									<formats>
-										<format>XML</format>
-									</formats>
-								</configuration>
 							</execution>
 						</executions>
 					</plugin>
