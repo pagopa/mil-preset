@@ -42,6 +42,7 @@ import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
 import it.pagopa.swclient.mil.preset.resource.PresetsResource;
 import it.pagopa.swclient.mil.preset.util.PresetTestData;
 import it.pagopa.swclient.mil.preset.util.SubscriberTestData;
+import it.pagopa.swclient.mil.preset.util.TokenGenerator;
 
 @QuarkusIntegrationTest
 @TestProfile(IntegrationTestProfile.class)
@@ -68,6 +69,9 @@ class PresetResourceTestIT {
 	Map<String, String> presetHeaders;
 	
 	SubscriberEntity subscriberEntity;
+	
+	String bearerInstitutionPortal;
+	String bearerSlavePos;
 	
 	@BeforeAll
 	void createTestObjects() {
@@ -139,6 +143,9 @@ class PresetResourceTestIT {
         subscriberEntity = new SubscriberEntity();
         subscriberEntity.id = SUBSCRIBER_ID;
         subscriberEntity.subscriber = subscriber;
+        
+		bearerInstitutionPortal = "Bearer " + TokenGenerator.generate("InstitutionPortal");
+		bearerSlavePos			= "Bearer " + TokenGenerator.generate("SlavePos");
 
 	}
 	
@@ -163,6 +170,8 @@ class PresetResourceTestIT {
 		request.setOperationType("PAYMENT_NOTICE");
 		request.setPaTaxCode("15376371009");
 		request.setSubscriberId("x46tr0");
+		
+		presetHeaders.put("Authorization", bearerInstitutionPortal);
 		
 		Response response = given()
 				.contentType(ContentType.JSON)
@@ -193,6 +202,8 @@ class PresetResourceTestIT {
 		request.setPaTaxCode("15376371111");
 		request.setSubscriberId("x46tr4");
 		
+		presetHeaders.put("Authorization", bearerInstitutionPortal);
+		
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(presetHeaders)
@@ -212,6 +223,8 @@ class PresetResourceTestIT {
 	
 	@Test
 	void getPresets_200() {
+		presetHeaders.put("Authorization", bearerInstitutionPortal);
+		
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(presetHeaders)
@@ -258,6 +271,8 @@ class PresetResourceTestIT {
 	@Test
 	void getPresets_200_emptyPreset() {
 		
+		presetHeaders.put("Authorization", bearerInstitutionPortal);
+		
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(presetHeaders)
@@ -279,6 +294,8 @@ class PresetResourceTestIT {
 	@Test
 	void getLastPreset_200() {
 
+		commonHeaders.put("Authorization", bearerSlavePos);
+		
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(commonHeaders)

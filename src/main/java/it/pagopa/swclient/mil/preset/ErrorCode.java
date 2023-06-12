@@ -36,6 +36,9 @@ public final class ErrorCode {
 	// integration errors
 	public static final String ERROR_WRITING_DATA_IN_DB					= MODULE_ID + "000011";
 	public static final String ERROR_READING_DATA_FROM_DB				= MODULE_ID + "000012";
+	
+	public static final String ERROR_UNAUTHORIZED						= MODULE_ID + "000013";
+	public static final String ERROR_FORBIDDEN							= MODULE_ID + "000014";
 
 
 	private ErrorCode() {

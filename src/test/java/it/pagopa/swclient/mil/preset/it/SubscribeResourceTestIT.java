@@ -33,6 +33,7 @@ import it.pagopa.swclient.mil.preset.bean.Subscriber;
 import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
 import it.pagopa.swclient.mil.preset.resource.TerminalsResource;
 import it.pagopa.swclient.mil.preset.util.SubscriberTestData;
+import it.pagopa.swclient.mil.preset.util.TokenGenerator;
 
 
 @QuarkusIntegrationTest
@@ -55,6 +56,9 @@ class SubscribeResourceTestIT {
 	
 	Map<String, String> commonHeaders;
 	Map<String, String> presetHeaders;
+	
+	String bearerInstitutionPortal;
+	String bearerSlavePos;
 	
 	@BeforeAll
 	void createTestObjects() {
@@ -93,6 +97,9 @@ class SubscribeResourceTestIT {
 		commonHeaders.put("TerminalId", "0aB9wXyZ");
 		commonHeaders.put("SessionId", SESSION_ID);
 		commonHeaders.put("MerchantId", "23533");
+		
+		bearerInstitutionPortal = "Bearer " + TokenGenerator.generate("InstitutionPortal");
+		bearerSlavePos			= "Bearer " + TokenGenerator.generate("SlavePos");
 	}
 	
 	
@@ -112,7 +119,8 @@ class SubscribeResourceTestIT {
 	@Test
 	void getSubscribers_200() {
 		
-
+		presetHeaders.put("Authorization", bearerInstitutionPortal);
+		
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(presetHeaders)
@@ -140,6 +148,8 @@ class SubscribeResourceTestIT {
 	@Test
 	void getSubscribers_200_emptyListOfSubribers() {
 
+		presetHeaders.put("Authorization", bearerInstitutionPortal);
+		
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(presetHeaders)
@@ -162,6 +172,7 @@ class SubscribeResourceTestIT {
 	/* **** unsubscribe **** */
 	@Test
 	void unsubscriber_200() {
+		commonHeaders.put("Authorization", bearerSlavePos);
 
 		Response response = given()
 				.contentType(ContentType.JSON)
@@ -180,6 +191,8 @@ class SubscribeResourceTestIT {
 	@Test
 	void unsubscriber_404() {
 		
+		commonHeaders.put("Authorization", bearerSlavePos);
+		
 		Response response = given()
 				.contentType(ContentType.JSON)
 				.headers(commonHeaders)
@@ -197,6 +210,8 @@ class SubscribeResourceTestIT {
 	/* **** subscribe **** */
 	@Test
 	void subscribe_200() {
+		
+		commonHeaders.put("Authorization", bearerSlavePos);
 		
 		SubscribeRequest request = new SubscribeRequest();
 		request.setPaTaxCode("34576371029");
@@ -221,6 +236,8 @@ class SubscribeResourceTestIT {
 	@Test
 	void subscribe_409() {
 
+		commonHeaders.put("Authorization", bearerSlavePos);
+		
 		SubscribeRequest request = new SubscribeRequest();
 		request.setPaTaxCode("15376371009");
 		request.setLabel("Reception POS");

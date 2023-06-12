@@ -2,13 +2,19 @@ package it.pagopa.swclient.mil.preset.bean;
 
 import it.pagopa.swclient.mil.ErrorCode;
 import it.pagopa.swclient.mil.bean.Channel;
+import it.pagopa.swclient.mil.preset.validation.constraints.AcquirerIdNotNullForSlavePosRole;
+import it.pagopa.swclient.mil.preset.validation.constraints.ChannelNotNullForSlavePosRole;
 import it.pagopa.swclient.mil.preset.validation.constraints.MerchantIdNotNullForPos;
+import it.pagopa.swclient.mil.preset.validation.constraints.TerminalIdNotNullForSlavePosRole;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.HeaderParam;
 
 @MerchantIdNotNullForPos(message = ErrorCode.MERCHANT_ID_MUST_NOT_BE_NULL_FOR_POS_MSG)
+@AcquirerIdNotNullForSlavePosRole(message = ErrorCode.ACQUIRER_ID_MUST_NOT_BE_NULL_MSG)
+@ChannelNotNullForSlavePosRole(message = ErrorCode.CHANNEL_MUST_NOT_BE_NULL_MSG)
+@TerminalIdNotNullForSlavePosRole(message = ErrorCode.TERMINAL_ID_MUST_NOT_BE_NULL_MSG)
 public class UnsubscribeHeaders {
 	/*
 	 * Request ID

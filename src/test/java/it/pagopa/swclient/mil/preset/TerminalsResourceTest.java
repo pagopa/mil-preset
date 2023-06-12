@@ -1,6 +1,7 @@
 package it.pagopa.swclient.mil.preset;
 
 import static io.restassured.RestAssured.given;
+import io.quarkus.test.security.TestSecurity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -78,7 +81,7 @@ class TerminalsResourceTest {
 
     /* ****  get Subscribers **** */
     @Test
-//    @TestSecurity( roles = {"InstitutionPortal"})
+    @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
     void getSubscribers_200() {
 
         Mockito
@@ -123,6 +126,7 @@ class TerminalsResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
     void getSubscribers_200_noSubscribers() {
 
 		Mockito
@@ -150,12 +154,49 @@ class TerminalsResourceTest {
 
     }
 
-	// TODO add validation tests for paTaxCode
-
-	// TODO add validation tests for headers
+    @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
+ 	@ParameterizedTest
+ 	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideHeaderValidationErrorCases")
+    void getSubscribers_400_invalidHeaders(Map<String, String> invalidHeaders, String errorCode)  {
+    	Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(invalidHeaders)
+				.and()
+				.pathParam("paTaxCode", PA_TAX_CODE)
+				.when()
+				.get("/{paTaxCode}")
+				.then()
+				.extract()
+				.response();
+    	Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getList("subscribers"));
+    }
+    
+ 	@ParameterizedTest
+  	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#providePaTaxCodeValidationErrorCases")
+    @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
+    void getSubscribers_400_invalidPathParams(String paTaxCode, String errorCode) {
+ 		Response response = given()
+				.contentType(ContentType.JSON)
+				.headers(presetHeaders)
+				.and()
+				.pathParam("paTaxCode", paTaxCode)
+				.when()
+				.get("/{paTaxCode}")
+				.then()
+				.extract()
+				.response();
+    	Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+		Assertions.assertNull(response.jsonPath().getList("subscribers"));
+ 	}
 
 
     @Test
+    @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
     void getSubscribers_500_dbError_listSubscribers() {
 
         Mockito
@@ -181,6 +222,7 @@ class TerminalsResourceTest {
 
     /* **** unsubscribe **** */
     @Test
+    @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void unsubscribe_200() {
 
         Mockito
@@ -213,11 +255,68 @@ class TerminalsResourceTest {
 
     }
 
-	// TODO add validation tests for paTaxCode, subscriberId
+ 	@ParameterizedTest
+  	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#providePaTaxCodeSubscriberIdValidationErrorCases")
+    @TestSecurity(user = "userJwt", roles = {"SlavePos"})
+    void unsubscribe_400_invalidPathParams(String paTaxCode, String subscriberId, String errorCode) {
+ 		Response response = given()
+                .contentType(ContentType.JSON)
+                .headers(commonHeaders)
+                .and()
+				  .pathParam("paTaxCode", paTaxCode)
+				  .pathParam("subscriberId", subscriberId)
+                .when()
+                .delete("/{paTaxCode}/{subscriberId}")
+                .then()
+                .extract()
+                .response();
+		Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+  }
+    
+    @ParameterizedTest
+ 	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideAllHeaderValidationErrorCases")
+ 	@TestSecurity(user = "userJwt", roles = {"SlavePos"})
+    void unsubscribe_400_invalidHeadersSlavePos(Map<String, String> invalidHeaders, String errorCode)  {
+    	  Response response = given()
+                  .contentType(ContentType.JSON)
+                  .headers(invalidHeaders)
+                  .and()
+  				  .pathParam("paTaxCode", PA_TAX_CODE)
+  				  .pathParam("subscriberId", SUBSCRIBER_ID)
+                  .when()
+                  .delete("/{paTaxCode}/{subscriberId}")
+                  .then()
+                  .extract()
+                  .response();
+  		Assertions.assertEquals(400, response.statusCode());
+  		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+  		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+    }
 
-	// TODO add validation tests for headers
-
+    @ParameterizedTest
+ 	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideAllInstitutionPortalHeaderValidationErrorCases")
+ 	@TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
+    void unsubscribe_400_invalidHeadersInstitutionPortal(Map<String, String> invalidHeaders, String errorCode)  {
+    	  Response response = given()
+                  .contentType(ContentType.JSON)
+                  .headers(invalidHeaders)
+                  .and()
+  				  .pathParam("paTaxCode", PA_TAX_CODE)
+  				  .pathParam("subscriberId", SUBSCRIBER_ID)
+                  .when()
+                  .delete("/{paTaxCode}/{subscriberId}")
+                  .then()
+                  .extract()
+                  .response();
+  		Assertions.assertEquals(400, response.statusCode());
+  		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+  		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+    }
+    
     @Test
+    @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void unsubscribe_404_unknownSubscriberId() {
 
         Mockito
@@ -241,6 +340,7 @@ class TerminalsResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void unsubscribe_500_dbError_deleteSubscriber() {
 
         Mockito
@@ -265,6 +365,7 @@ class TerminalsResourceTest {
 
     /* **** subscribe **** */
     @Test
+    @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void subscribe_200() {
 
         SubscribeRequest request = new SubscribeRequest();
@@ -326,9 +427,32 @@ class TerminalsResourceTest {
 
     }
 
-    // TODO add validation tests for headers
+    @ParameterizedTest
+   	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideAllHeaderValidationErrorCases")
+   	@TestSecurity(user = "userJwt", roles = {"SlavePos"})
+    void subscribe_400_invalidHeadersSlavePos(Map<String, String> invalidHeaders, String errorCode)  {
+        
+    	SubscribeRequest request = new SubscribeRequest();
+        request.setPaTaxCode("15376371009");
+        request.setLabel("Reception POS");
+        
+    	Response response = given()
+                .contentType(ContentType.JSON)
+                .headers(invalidHeaders)
+                .body(request)
+                .and()
+                .when()
+                .post()
+                .then()
+                .extract()
+                .response();
+		Assertions.assertEquals(400, response.statusCode());
+		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+    }
 
     @Test
+    @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void subscribe_409_subscriberAlreadyExists() {
 
         SubscribeRequest request = new SubscribeRequest();
@@ -358,6 +482,7 @@ class TerminalsResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void subscribe_500_dbError_listSubscribers() {
 
         SubscribeRequest request = new SubscribeRequest();
@@ -385,6 +510,7 @@ class TerminalsResourceTest {
     }
 
     @Test
+    @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void subscribe_500_dbError_persistSubscriber() {
 
         SubscribeRequest request = new SubscribeRequest();

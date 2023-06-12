@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import io.quarkus.test.junit.QuarkusTestProfile;
 import it.pagopa.swclient.mil.preset.resource.MongoTestResource;
 import it.pagopa.swclient.mil.preset.resource.RedpandaTestResource;
+import it.pagopa.swclient.mil.preset.resource.WiremockTestResource;
 
 public class IntegrationTestProfile implements QuarkusTestProfile {
 
@@ -28,7 +29,8 @@ public class IntegrationTestProfile implements QuarkusTestProfile {
     public List<TestResourceEntry> testResources() {
         return ImmutableList.of(
                 new TestResourceEntry(MongoTestResource.class),
-                new TestResourceEntry(RedpandaTestResource.class)
+                new TestResourceEntry(RedpandaTestResource.class),
+                new TestResourceEntry(WiremockTestResource.class)
         );
     }
 

@@ -41,3 +41,5 @@ nb-configuration.xml
 
 src/main/terraform/identity/.terraform
 src/main/terraform/identity/.terraform.lock.hcl
+
+*.bak

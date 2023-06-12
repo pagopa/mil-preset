@@ -26,11 +26,8 @@ public class CustomRedpandaContainer extends RedpandaContainer {
 
         String command = "#!/bin/bash\n";
         command = command + "/usr/bin/rpk redpanda start --mode dev-container ";
-        command = command + " --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 ";
-        command = command + " --advertise-kafka-addr PLAINTEXT://" + this.getNetworkAliases().get(this.getNetworkAliases().size()-1) + ":29092,OUTSIDE://" + this.getHost() + ":" + this.getMappedPort(9092);
-       // command = command + "/usr/bin/rpk redpanda start --mode dev-container ";
-       // command = command + "--kafka-addr PLAINTEXT://0.0.0.0:29092,INTERNAL://0.0.0.0:19092,OUTSIDE://0.0.0.0:9092 ";
-       // command = command + "--advertise-kafka-addr PLAINTEXT://127.0.0.1:29092,INTERNAL://"+this.getNetworkAliases().get(this.getNetworkAliases().size()-1)+":19092,OUTSIDE://" + this.getHost() + ":" + this.getMappedPort(9092);
+        command = command + "--kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092 ";
+        command = command + "--advertise-kafka-addr PLAINTEXT://" + this.getNetworkAliases().get(this.getNetworkAliases().size()-1) + ":29092,OUTSIDE://" + this.getHost() + ":" + this.getMappedPort(9092);
         this.copyFileToContainer(Transferable.of(command, 511), "/testcontainers_start.sh");
 
 

@@ -2,6 +2,7 @@ package it.pagopa.swclient.mil.preset.util;
 
 import it.pagopa.swclient.mil.preset.OperationType;
 import it.pagopa.swclient.mil.preset.PresetStatus;
+import it.pagopa.swclient.mil.preset.bean.CreatePresetRequest;
 import it.pagopa.swclient.mil.preset.bean.Notice;
 import it.pagopa.swclient.mil.preset.bean.PaymentTransaction;
 import it.pagopa.swclient.mil.preset.bean.PaymentTransactionStatus;
@@ -130,6 +131,16 @@ public final class PresetTestData {
 
         return paymentTransaction;
 
+    }
+    
+    public static CreatePresetRequest getCreatePresetRequest() {
+    	CreatePresetRequest request = new CreatePresetRequest();
+        request.setNoticeNumber("485564829563528563");
+        request.setNoticeTaxCode("15376371009");
+        request.setOperationType("PAYMENT_NOTICE");
+        request.setPaTaxCode("15376371009");
+        request.setSubscriberId("x46tr3");
+        return request;
     }
 
     public static final String PA_TAX_CODE = "15376371009";
