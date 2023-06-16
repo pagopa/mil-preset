@@ -50,8 +50,7 @@ class PostmanCollectionTestIT implements DevServicesContext.ContextAware {
                 //.withNetwork(getNetwork())
                 //.withNetworkMode(devServicesContext.containerNetworkId().get())
                 .waitingFor(Wait.forListeningPort())
-                .withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy())
-                .withExposedPorts(8081);
+                .withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy());
 
         newmanContainer.withLogConsumer(new Slf4jLogConsumer(logger));
         newmanContainer.setCommand(
@@ -69,7 +68,11 @@ class PostmanCollectionTestIT implements DevServicesContext.ContextAware {
         Config config = ConfigProvider.getConfig();
         Optional<Integer> testPort = config.getOptionalValue("quarkus.http.test-port", Integer.class);
         logger.info("quarkus.http.test-port -> {}", testPort);
+
         Testcontainers.exposeHostPorts(testPort.orElse(8081));
+
+        String exposedPort = devServicesContext.devServicesProperties().get("test.wiremock.exposed-port");
+        Testcontainers.exposeHostPorts(Integer.parseInt(exposedPort));
 
     }
 

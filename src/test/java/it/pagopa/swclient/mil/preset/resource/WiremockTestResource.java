@@ -48,19 +48,20 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
                 .withNetwork(getNetwork())
                 .withNetworkAliases(WIREMOCK_NETWORK_ALIAS)
                 //.withNetworkMode(devServicesContext.containerNetworkId().get())
-                .waitingFor(Wait.forListeningPort());
+                .waitingFor(Wait.forListeningPort())
+                .withExposedPorts(8080);
 
         wiremockContainer.withLogConsumer(new Slf4jLogConsumer(logger));
         wiremockContainer.setCommand("--verbose --local-response-templating");
         wiremockContainer.withFileSystemBind("./src/test/resources/it/wiremock", "/home/wiremock");
 
         wiremockContainer.start();
-        
-        
-        final String wiremockEndpoint = "http://" + WIREMOCK_NETWORK_ALIAS + ":" + 8080;
 
-        
-        
+        final Integer exposedPort = wiremockContainer.getMappedPort(8080);
+        devServicesContext.devServicesProperties().put("test.wiremock.exposed-port", exposedPort.toString());
+
+        final String wiremockEndpoint = "http://host.testcontainers.internal:" + exposedPort;
+
         Path path = Paths.get("./src/test/postman/Preset.postman_collection.json");
         Charset charset = StandardCharsets.UTF_8;
 
