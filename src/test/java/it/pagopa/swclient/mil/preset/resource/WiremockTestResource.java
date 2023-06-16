@@ -1,8 +1,15 @@
 package it.pagopa.swclient.mil.preset.resource;
 
-import com.google.common.collect.ImmutableMap;
-import io.quarkus.test.common.DevServicesContext;
-import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
@@ -13,7 +20,10 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
+
+import io.quarkus.test.common.DevServicesContext;
+import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 
 
 public class WiremockTestResource implements QuarkusTestResourceLifecycleManager, DevServicesContext.ContextAware {
@@ -45,13 +55,34 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
         wiremockContainer.withFileSystemBind("./src/test/resources/it/wiremock", "/home/wiremock");
 
         wiremockContainer.start();
-
+        
+        
         final String wiremockEndpoint = "http://" + WIREMOCK_NETWORK_ALIAS + ":" + 8080;
 
+        
+        
+        Path path = Paths.get("./src/test/postman/Preset.postman_collection.json");
+        Charset charset = StandardCharsets.UTF_8;
+
+        String content;
+		try {
+			content = new String(Files.readAllBytes(path), charset);
+	        content = content.replaceAll("<token_url>", wiremockEndpoint);
+	        Files.write(path, content.getBytes(charset));
+		} catch (IOException e) {
+			logger.error("Error replacing URL in file");
+			e.printStackTrace();
+		}
+        
         // Pass the configuration to the application under test
         return ImmutableMap.of(
                 "jwt-publickey-location", wiremockEndpoint + "/jwks.json"
         );
+        
+        
+       
+
+        
 
     }
 

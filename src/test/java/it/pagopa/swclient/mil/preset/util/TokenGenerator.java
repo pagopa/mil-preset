@@ -7,15 +7,28 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.eclipse.microprofile.jwt.Claims;
+
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.RSAKey;
 
 import io.smallrye.jwt.build.Jwt;
 import io.smallrye.jwt.build.JwtSignatureException;
@@ -59,14 +72,13 @@ public class TokenGenerator {
 	
 	public static String generate(String group) {
 		
-		
-		 String token = null;
+		String token = null;
 		try {
 			token = Jwt.issuer("https://test") 
-			     .groups(new HashSet<>(Arrays.asList(group))) 
-			     .claim(Claims.sub.name(), "5254f087-1214-45cd-94ae-fda53c835197") 
-			     
-			   .sign(getPrivateKey());
+				       .groups(new HashSet<>(Arrays.asList(group))) 
+				       .claim(Claims.sub.name(), "5254f087-1214-45cd-94ae-fda53c835197")
+				       .expiresIn(900000000)
+				       .sign(getPrivateKey());
 		} catch (JwtSignatureException e) {
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
@@ -105,6 +117,43 @@ public class TokenGenerator {
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(pkcs8EncodedBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         PrivateKey privKey = kf.generatePrivate(keySpec);
+        
         return privKey;
+	}
+	
+	private static PublicKey getPublicKey(PrivateKey privKey) {
+		
+	    RSAPrivateCrtKey privk = (RSAPrivateCrtKey)privKey;
+
+	    RSAPublicKeySpec publicKeySpec = new java.security.spec.RSAPublicKeySpec(privk.getModulus(), privk.getPublicExponent());
+
+	    KeyFactory keyFactory;
+	    PublicKey myPublicKey = null;
+		try {
+			keyFactory = KeyFactory.getInstance("RSA");
+			myPublicKey = keyFactory.generatePublic(publicKeySpec);
+			
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (InvalidKeySpecException e) {
+			e.printStackTrace();
+		}
+		return myPublicKey;
+	}
+	
+	public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+	
+
+//		PrivateKey pk = getPrivateKey();
+////		 RSAPrivateCrtKey privk = (RSAPrivateCrtKey)pk;
+//		PublicKey pu = getPublicKey(pk);
+//		// Convert to JWK format
+//		JWK jwk = new RSAKey.Builder((RSAPublicKey)pu)
+//		    .privateKey((RSAPrivateKey)pk)
+//		    .keyUse(KeyUse.SIGNATURE)
+//		    .keyID(UUID.randomUUID().toString())
+//		    .issueTime(new Date())
+//		    .build();
+		System.out.println(generate("SlavePos"));
 	}
 }
