@@ -420,7 +420,7 @@ class TerminalsResourceTest {
         Assertions.assertNotNull(persistedSubscriber.getSubscriberId());
         Assertions.assertEquals(request.getLabel(), persistedSubscriber.getLabel());
         Assertions.assertNotNull(persistedSubscriber.getSubscriptionTimestamp());
-        Assertions.assertNull(persistedSubscriber.getLastUsageTimestamp());
+        Assertions.assertNotNull(persistedSubscriber.getLastUsageTimestamp());
 
         Assertions.assertTrue(response.getHeader("Location") != null &&
                 response.getHeader("Location").endsWith("/terminals/" + PA_TAX_CODE + "/" + persistedSubscriber.getSubscriberId()));
