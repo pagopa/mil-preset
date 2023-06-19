@@ -1,6 +1,3 @@
-/**
- * 
- */
 package it.pagopa.swclient.mil.preset.utils;
 
 import io.quarkus.logging.Log;
@@ -23,7 +20,7 @@ public class AuthenticationFailedExceptionMapper implements ExceptionMapper<Auth
 
     @Override
     public Response toResponse(AuthenticationFailedException exception) {
-    	Log.errorf("[%s] Error unauthorized - %s", ErrorCode.ERROR_UNAUTHORIZED, context.getHeaders());
-    	 return Response.status(Response.Status.UNAUTHORIZED).build();
+        Log.errorf("[%s] Error unauthorized - %s", ErrorCode.ERROR_UNAUTHORIZED, context.getHeaders());
+        return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 }

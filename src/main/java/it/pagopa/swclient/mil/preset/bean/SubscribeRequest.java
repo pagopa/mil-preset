@@ -20,7 +20,7 @@ public class SubscribeRequest {
 	 * Mnemonic terminal label
 	 */
 	@NotNull(message = "[" + ErrorCode.LABEL_MUST_NOT_BE_NULL + "] label must not be null")
-	@Pattern(regexp = "^[\\u0001-\\uD7FF\\uE000-\\uFFFD\\u1000-\\u10FF]{1,256}$", message = "[" + ErrorCode.LABEL_MUST_MATCH_REGEXP + "] paTaxCode must match \"{regexp}\"")
+	@Pattern(regexp = "^[\\u0001-\\uD7FF\\uE000-\\uFFFD\\u1000-\\u10FF]{1,256}$", message = "[" + ErrorCode.LABEL_MUST_MATCH_REGEXP + "] label must match \"{regexp}\"")
 	private String label;
 
 	/**

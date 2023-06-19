@@ -278,7 +278,7 @@ class TerminalsResourceTest {
     @ParameterizedTest
  	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideAllHeaderValidationErrorCases")
  	@TestSecurity(user = "userJwt", roles = {"SlavePos"})
-    void unsubscribe_400_invalidHeadersSlavePos(Map<String, String> invalidHeaders, String errorCode)  {
+    void unsubscribe_400_invalidHeaders_SlavePos(Map<String, String> invalidHeaders, String errorCode)  {
     	  Response response = given()
                   .contentType(ContentType.JSON)
                   .headers(invalidHeaders)
@@ -298,7 +298,7 @@ class TerminalsResourceTest {
     @ParameterizedTest
  	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideAllInstitutionPortalHeaderValidationErrorCases")
  	@TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
-    void unsubscribe_400_invalidHeadersInstitutionPortal(Map<String, String> invalidHeaders, String errorCode)  {
+    void unsubscribe_400_invalidHeaders_InstitutionPortal(Map<String, String> invalidHeaders, String errorCode)  {
     	  Response response = given()
                   .contentType(ContentType.JSON)
                   .headers(invalidHeaders)

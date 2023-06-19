@@ -7,9 +7,9 @@ import it.pagopa.swclient.mil.preset.bean.Subscriber;
 import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
 
 public class SubscriberTestData {
-	public static final String SUBCRIBER_FOUND		= "x46tr0";
-	public static final String SUBCRIBER_NOT_FOUND	= "aaaaaa";
-	public static final String UNSUBCRIBE			= "bbbbbb";
+	public static final String SUBSCRIBER_FOUND = "x46tr0";
+	public static final String SUBSCRIBER_NOT_FOUND = "aaaaaa";
+	public static final String UNSUBSCRIBE = "bbbbbb";
 	
 	public static SubscriberEntity getSubscribers(String subscriberId) {
 		SubscriberEntity subscriberEntity 	= new SubscriberEntity();

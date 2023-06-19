@@ -1,8 +1,6 @@
-/**
- * 
- */
 package it.pagopa.swclient.mil.preset.validation.constraints;
 
+import it.pagopa.swclient.mil.preset.bean.Role;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -17,12 +15,16 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Target(TYPE)
 @Constraint(validatedBy = {
-	ChannelNotNullForSlavePosRoleValidator.class
+        AcquirerIdNotNullForRoleValidator.class
 })
-public @interface ChannelNotNullForSlavePosRole {
-	String message() default "";
+public @interface AcquirerIdNotNullForRole {
 
-	Class<?>[] groups() default {};
+    String message() default "";
 
-	Class<? extends Payload>[] payload() default {};
+    Role[] roles() default {};
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
+
 }

@@ -53,14 +53,18 @@ class PostmanCollectionTestIT implements DevServicesContext.ContextAware {
                 .withStartupCheckStrategy(new IndefiniteWaitOneShotStartupCheckStrategy());
 
         newmanContainer.withLogConsumer(new Slf4jLogConsumer(logger));
+
+        String exposedPort = devServicesContext.devServicesProperties().get("test.wiremock.exposed-port");
+
         newmanContainer.setCommand(
                 "run",
                 "Preset.postman_collection.json",
                 "--disable-unicode",
                 "-k",
-                "--environment=Local_IT.postman_environment.json",
-                "--reporters=htmlextra",
-                "--reporter-htmlextra-export=reports/Preset_Service_Tests.html");
+                "--environment", "Local_IT.postman_environment.json",
+                "--env-var", "access_token_base_url=http://host.testcontainers.internal:" + exposedPort,
+                "--reporters", "htmlextra",
+                "--reporter-htmlextra-export", "reports/Preset_Service_Tests.html");
 
         newmanContainer.withFileSystemBind("./src/test/postman", "/etc/newman");
 
@@ -70,8 +74,6 @@ class PostmanCollectionTestIT implements DevServicesContext.ContextAware {
         logger.info("quarkus.http.test-port -> {}", testPort);
 
         Testcontainers.exposeHostPorts(testPort.orElse(8081));
-
-        String exposedPort = devServicesContext.devServicesProperties().get("test.wiremock.exposed-port");
         Testcontainers.exposeHostPorts(Integer.parseInt(exposedPort));
 
     }

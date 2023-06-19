@@ -23,7 +23,7 @@ import java.util.UUID;
 
 public final class PresetTestData {
 
-    public static Map<String, String> getMilHeaders(boolean isPos, boolean isKnownAcquirer) {
+    public static Map<String, String> getPosHeaders(boolean isPos, boolean isKnownAcquirer) {
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("RequestId", UUID.randomUUID().toString());
         headerMap.put("Version", "1.0.0");
@@ -32,6 +32,13 @@ public final class PresetTestData {
         headerMap.put("TerminalId", "0aB9wXyZ");
         if (isPos) headerMap.put("MerchantId", "28405fHfk73x88D");
         headerMap.put("SessionId", UUID.randomUUID().toString());
+        return headerMap;
+    }
+
+    public static Map<String, String> getInstitutionPortalHeaders() {
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("RequestId", UUID.randomUUID().toString());
+        headerMap.put("Version", "1.0.0");
         return headerMap;
     }
 

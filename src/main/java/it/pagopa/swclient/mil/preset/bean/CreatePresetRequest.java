@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Pattern;
 public class CreatePresetRequest {
 	
 	/*
-	 * 	Operation of payment of a notice
+	 * 	Type of preset operation
 	 */
 	@NotNull(message = "[" + ErrorCode.OPERATION_TYPE_MUST_NOT_BE_NULL + "] operationType must not be null")
 	@Pattern(regexp = "PAYMENT_NOTICE", message = "[" + ErrorCode.OPERATION_TYPE_MUST_MATCH_REGEXP + "] operationType must match \"{regexp}\"")

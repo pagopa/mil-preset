@@ -240,7 +240,9 @@ public class TerminalsResource {
 		subscriber.setMerchantId(commonHeader.getMerchantId());
 		subscriber.setPaTaxCode(subscribeRequest.getPaTaxCode());
 		subscriber.setSubscriberId(subscriberId);
-		subscriber.setSubscriptionTimestamp(DateUtils.getCurrentTimestamp());
+		String currentTimestamp = DateUtils.getCurrentTimestamp();
+		subscriber.setSubscriptionTimestamp(currentTimestamp);
+		subscriber.setLastUsageTimestamp(currentTimestamp);
 		subscriber.setTerminalId(commonHeader.getTerminalId());
 
 		SubscriberEntity subscriberEntity = new SubscriberEntity();

@@ -75,7 +75,7 @@ class PresetResourceTestIT {
 	
 	@BeforeAll
 	void createTestObjects() {
-		validMilHeaders = PresetTestData.getMilHeaders(true, true);
+		validMilHeaders = PresetTestData.getPosHeaders(true, true);
 		
 		// initialize mongo client
 		pojoCodecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
@@ -85,8 +85,8 @@ class PresetResourceTestIT {
 		mongoClient = MongoClients.create("mongodb://127.0.0.1:" + mongoExposedPort);
 		
 		List<String> subscriberIdList = List.of(
-				SubscriberTestData.SUBCRIBER_FOUND,
-				SubscriberTestData.SUBCRIBER_NOT_FOUND
+				SubscriberTestData.SUBSCRIBER_FOUND,
+				SubscriberTestData.SUBSCRIBER_NOT_FOUND
 		);
 		
 		List<SubscriberEntity> subscriberEntityEntities = subscriberIdList.stream()
@@ -110,7 +110,7 @@ class PresetResourceTestIT {
 		PresetEntity presetEntity = PresetTestData.getPresetEntity("77457c64-0870-407a-b2cb-0f948b04fb9a","x46tr3");
 		PaymentTransaction paymentTransaction = PresetTestData.getPaymentTransaction(
 				PaymentTransactionStatus.PENDING,
-				PresetTestData.getMilHeaders(true, true),
+				PresetTestData.getPosHeaders(true, true),
 				PresetTestData.getPreset(presetId, "x46tr3"),
 				1);
 		presetEntity.presetOperation.setStatusDetails(paymentTransaction);
@@ -188,7 +188,7 @@ class PresetResourceTestIT {
         Assertions.assertEquals(0, response.body().asString().length());
 
 
-        final String locationPath =  "/presets/" + PA_TAX_CODE + "/" + SubscriberTestData.SUBCRIBER_FOUND + "/";
+        final String locationPath =  "/presets/" + PA_TAX_CODE + "/" + SubscriberTestData.SUBSCRIBER_FOUND + "/";
         Assertions.assertTrue(response.getHeader("Location") != null && response.getHeader("Location").contains(locationPath));
 	}
 	

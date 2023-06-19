@@ -51,7 +51,7 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
                 .waitingFor(Wait.forListeningPort())
                 .withExposedPorts(8080);
 
-        wiremockContainer.withLogConsumer(new Slf4jLogConsumer(logger));
+        //wiremockContainer.withLogConsumer(new Slf4jLogConsumer(logger));
         wiremockContainer.setCommand("--verbose --local-response-templating");
         wiremockContainer.withFileSystemBind("./src/test/resources/it/wiremock", "/home/wiremock");
 
@@ -60,30 +60,10 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
         final Integer exposedPort = wiremockContainer.getMappedPort(8080);
         devServicesContext.devServicesProperties().put("test.wiremock.exposed-port", exposedPort.toString());
 
-        final String wiremockEndpoint = "http://host.testcontainers.internal:" + exposedPort;
-
-        Path path = Paths.get("./src/test/postman/Preset.postman_collection.json");
-        Charset charset = StandardCharsets.UTF_8;
-
-        String content;
-		try {
-			content = new String(Files.readAllBytes(path), charset);
-	        content = content.replaceAll("<token_url>", wiremockEndpoint);
-	        Files.write(path, content.getBytes(charset));
-		} catch (IOException e) {
-			logger.error("Error replacing URL in file");
-			e.printStackTrace();
-		}
-        
         // Pass the configuration to the application under test
         return ImmutableMap.of(
-                "jwt-publickey-location", wiremockEndpoint + "/jwks.json"
+                "jwt-publickey-location", "http://" + WIREMOCK_NETWORK_ALIAS + ":8080/jwks.json"
         );
-        
-        
-       
-
-        
 
     }
 

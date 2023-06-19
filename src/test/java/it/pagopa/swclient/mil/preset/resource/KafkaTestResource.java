@@ -3,6 +3,7 @@ package it.pagopa.swclient.mil.preset.resource;
 import com.google.common.collect.ImmutableMap;
 import io.quarkus.test.common.DevServicesContext;
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.builder.Transferable;
 
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,12 +67,13 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager, D
                     .withEnv(environmentVariables)
                     .waitingFor(Wait.forLogMessage(".*Kafka Server started.*", 1));
 
-            kafkaContainer.withLogConsumer(new Slf4jLogConsumer(logger, true));
+            //kafkaContainer.withLogConsumer(new Slf4jLogConsumer(logger, true));
 
             kafkaContainer.start();
 
             logger.info("kafkaContainer.isRunning(): {}", kafkaContainer.isRunning());
 
+            String topic = RandomStringUtils.random(8, 0, 0, true, true, null, new SecureRandom()).toLowerCase();
             try {
                 String config = "sasl.jaas.config=org.apache.kafka.common.security.plain.PlainLoginModule required username=\"user\" password=\"bitnami\";\n";
                 config = config + "security.protocol=SASL_PLAINTEXT\n";
@@ -82,7 +85,7 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager, D
                         "--bootstrap-server", "127.0.0.1:9092",
                         "--replication-factor", "1",
                         "--partitions", "1",
-                        "--topic", "presets",
+                        "--topic", topic,
                         "--command-config", "tmp/config.properties").toString());
             }
             catch (UnsupportedOperationException | IOException | InterruptedException e) {
@@ -90,13 +93,19 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager, D
             }
 
             devServicesContext.devServicesProperties().put("test.kafka.bootstrap-server", "localhost:29092");
+            devServicesContext.devServicesProperties().put("test.kafka.security-protocol", "SASL_PLAINTEXT");
+            devServicesContext.devServicesProperties().put("test.kafka.sasl-mechanism", "PLAIN");
+            devServicesContext.devServicesProperties().put("test.kafka.sasl-jaas-config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"user\" password=\"bitnami\";");
+
+            devServicesContext.devServicesProperties().put("test.kafka.topic", topic);
 
             // Pass the configuration to the application under test
             return ImmutableMap.of(
                     "kafka-bootstrap-server", KAFKA_NETWORK_ALIAS + ":" + 9093,
                     "kafka-security-protocol", "SASL_PLAINTEXT",
                     "kafka-sasl-mechanism", "PLAIN",
-                    "kafka-sasl-jaas-config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"user\" password=\"bitnami\";"
+                    "kafka-sasl-jaas-config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"user\" password=\"bitnami\";",
+                    "kafka-topic", topic
             );
         }
 		catch (Exception e) {

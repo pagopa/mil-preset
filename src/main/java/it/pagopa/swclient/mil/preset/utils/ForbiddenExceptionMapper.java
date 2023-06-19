@@ -1,6 +1,3 @@
-/**
- * 
- */
 package it.pagopa.swclient.mil.preset.utils;
 
 import io.quarkus.logging.Log;
@@ -16,7 +13,7 @@ import jakarta.ws.rs.ext.Provider;
 
 @Provider
 @Priority(Priorities.AUTHENTICATION)
-public class ForbiddenFailedExceptionMapper implements ExceptionMapper<ForbiddenException> {
+public class ForbiddenExceptionMapper implements ExceptionMapper<ForbiddenException> {
 
     @Context
     ContainerRequestContext context; 

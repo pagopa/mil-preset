@@ -43,7 +43,7 @@ public class MongoTestResource implements QuarkusTestResourceLifecycleManager, D
                 //.withNetworkMode(devServicesContext.containerNetworkId().get())
                 .waitingFor(Wait.forListeningPort());
 
-        mongoContainer.withLogConsumer(new Slf4jLogConsumer(logger, true));
+        //mongoContainer.withLogConsumer(new Slf4jLogConsumer(logger, true));
 
         mongoContainer.withFileSystemBind("./src/test/resources/it/mongo", "/home/mongo");
 		//mongoContainer.setCommand("--verbose");

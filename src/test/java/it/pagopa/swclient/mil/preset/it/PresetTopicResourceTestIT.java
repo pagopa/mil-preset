@@ -92,7 +92,7 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 
 		PaymentTransaction paymentTransaction = PresetTestData.getPaymentTransaction(
 				PaymentTransactionStatus.PENDING,
-				PresetTestData.getMilHeaders(true, true),
+				PresetTestData.getPosHeaders(true, true),
 				PresetTestData.getPreset(presetId, "y46tr3"),
 				1);
 
