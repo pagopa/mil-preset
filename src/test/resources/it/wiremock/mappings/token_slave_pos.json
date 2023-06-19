@@ -1,8 +1,14 @@
 {
     "request": {
         "method": "POST",
-        "urlPattern": "/token"
+        "urlPattern": "/token",
+		"bodyPatterns": [
+		  {
+			"contains": "grant_type=password"
+		  }
+		]
     },
+	
     "response": {
         "status": 200,
         "headers": {

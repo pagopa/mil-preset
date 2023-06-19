@@ -29,6 +29,7 @@
 											"\r",
 											"    pm.test(\"Token type\", function () {\r",
 											"        var jsonData = pm.response.json();\r",
+											"        console.log(\"JKW \" + jsonData);\r",
 											"        pm.expect(jsonData.token_type).to.eql(\"Bearer\");\r",
 											"         pm.environment.set(\"access_token_slave_pos\", \"Bearer \" + jsonData.access_token);\r",
 											"    });\r",
@@ -8112,11 +8113,6 @@
 	],
 	"variable": [
 		{
-			"key": "access_token_base_url",
-			"value": "http://wiremock-it:8080",
-			"type": "default"
-		},
-		{
 			"key": "mil_preset_version",
 			"value": "1.0.0-alpha-a.b-c-somethinglong+build.1-aef.1-its-okay",
 			"type": "default"
@@ -8132,33 +8128,8 @@
 			"type": "default"
 		},
 		{
-			"key": "acquirer_id",
-			"value": "4585625",
-			"type": "default"
-		},
-		{
 			"key": "merchant_id",
 			"value": "12346789",
-			"type": "default"
-		},
-		{
-			"key": "access_token_username",
-			"value": "antoniotar2",
-			"type": "default"
-		},
-		{
-			"key": "access_token_password",
-			"value": "antonio",
-			"type": "default"
-		},
-		{
-			"key": "client_id",
-			"value": "b9d189ec-fc47-4792-8018-db914057d964",
-			"type": "default"
-		},
-		{
-			"key": "client_secret",
-			"value": "3674f0e7-d717-44cc-a3bc-5f8f41771fea",
 			"type": "default"
 		},
 		{
