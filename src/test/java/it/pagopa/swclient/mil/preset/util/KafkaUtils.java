@@ -1,11 +1,14 @@
 package it.pagopa.swclient.mil.preset.util;
 
 import io.quarkus.kafka.client.serialization.ObjectMapperDeserializer;
+import io.quarkus.kafka.client.serialization.ObjectMapperSerializer;
 import io.quarkus.test.common.DevServicesContext;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,5 +82,18 @@ public class KafkaUtils {
         });
 
         return kafkaConsumer;
+    }
+
+    public static <T> KafkaProducer<String, T> getKafkaProducer(DevServicesContext devServicesContext, Class<T> clazz) {
+        // initialize kafka consumer
+        Properties kafkaConfig = new Properties();
+
+        Map<String, String> testProperties = devServicesContext.devServicesProperties();
+        kafkaConfig.put("bootstrap.servers", testProperties.get("test.kafka.bootstrap-server"));
+        kafkaConfig.put("security.protocol", testProperties.get("test.kafka.security-protocol"));
+        kafkaConfig.put("sasl.mechanism", testProperties.get("test.kafka.sasl-mechanism"));
+        kafkaConfig.put("sasl.jaas.config", testProperties.get("test.kafka.sasl-jaas-config"));
+
+        return new KafkaProducer<>(kafkaConfig, new StringSerializer(), new ObjectMapperSerializer<>());
     }
 }

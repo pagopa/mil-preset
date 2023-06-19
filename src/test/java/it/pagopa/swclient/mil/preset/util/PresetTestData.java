@@ -8,7 +8,10 @@ import it.pagopa.swclient.mil.preset.bean.PaymentTransaction;
 import it.pagopa.swclient.mil.preset.bean.PaymentTransactionStatus;
 import it.pagopa.swclient.mil.preset.bean.Preset;
 import it.pagopa.swclient.mil.preset.bean.PresetOperation;
+import it.pagopa.swclient.mil.preset.bean.Subscriber;
 import it.pagopa.swclient.mil.preset.dao.PresetEntity;
+import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
+import it.pagopa.swclient.mil.preset.utils.DateUtils;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.Instant;
@@ -139,14 +142,43 @@ public final class PresetTestData {
         return paymentTransaction;
 
     }
-    
+
+    public static SubscriberEntity getSubscriberEntity(String subscriberId, String paTaxCode,
+                                                       Map<String, String> posHeaders) {
+
+        Subscriber subscriber = new Subscriber();
+        subscriber.setAcquirerId(posHeaders.get("AcquirerId"));
+        subscriber.setChannel("Channel");
+        subscriber.setTerminalId("TerminalId");
+        subscriber.setMerchantId("MerchantId");
+
+        subscriber.setPaTaxCode(paTaxCode);
+
+        subscriber.setSubscriberId(subscriberId);
+        subscriber.setLabel("Test label");
+
+        String currentTimestamp = DateUtils.getCurrentTimestamp();
+        subscriber.setLastUsageTimestamp(currentTimestamp);
+        subscriber.setSubscriptionTimestamp(currentTimestamp);
+
+        SubscriberEntity subscriberEntity 	= new SubscriberEntity();
+        subscriberEntity.subscriber = subscriber;
+        subscriberEntity.id = subscriberId;
+
+        return subscriberEntity;
+    }
+
     public static CreatePresetRequest getCreatePresetRequest() {
+        return getCreatePresetRequest("x46tr3");
+    }
+    
+    public static CreatePresetRequest getCreatePresetRequest(String subscriberId) {
     	CreatePresetRequest request = new CreatePresetRequest();
         request.setNoticeNumber("485564829563528563");
         request.setNoticeTaxCode("15376371009");
         request.setOperationType("PAYMENT_NOTICE");
-        request.setPaTaxCode("15376371009");
-        request.setSubscriberId("x46tr3");
+        request.setPaTaxCode(PA_TAX_CODE);
+        request.setSubscriberId(subscriberId);
         return request;
     }
 

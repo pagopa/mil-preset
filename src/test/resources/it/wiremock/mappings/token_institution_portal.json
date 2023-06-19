@@ -1,26 +1,23 @@
 {
-    "request": {
-        "method": "POST",
-        "urlPattern": "/token",
-			"bodyPatterns": [
-		  {
-			"contains": "grant_type=client_credentials"
-		  }
-		]
+  "request": {
+    "method": "POST",
+    "urlPattern": "/token",
+    "bodyPatterns": [
+      {
+        "contains": "grant_type=client_credentials"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
     },
-	
-    "response": {
-        "status": 200,
-        "headers": {
-            "Content-Type": "application/json"
-        },
-        "jsonBody": {
-					 
-					"access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rlc3QiLCJncm91cHMiOlsiSW5zdGl0dXRpb25Qb3J0YWwiXSwic3ViIjoiNTI1NGYwODctMTIxNC00NWNkLTk0YWUtZmRhNTNjODM1MTk3IiwiaWF0IjoxNjg2OTI0NjI5LCJleHAiOjI1ODY5MjQ2MjksImp0aSI6ImYyYTU3ZWIzLTE4MDgtNDg5Ni04NjI5LWEyZTQ3MmI4NDdmOCJ9.HBrJOSBPgYYwflD260-eGh_-FZN5-5R-gdRpSq3FArQx12EUGLu5EThjwjjEgW3hljyGyfXIOtJFikLaPFfermMw0V58NEb-jPrBm9stQM1Uo3dEiX2mff2bdmB3CWset39CJcB5ZLjfiT94WcU4Gtka2uDdkVEf_Uq7Y7Mzra6rqqKoNIipX7wHeMrgcj_03zlXGKRByqeBoxQHlHciPwbNyrpzkBb6LQlWjOHeg3bAtBFG-gAzM_Q6d_mIs0BED_7Ydv_4IqUNa8UXDrkkciuifuIh7n3kQHEPmLEA9fMIv3TpbpneIa1irfx9PSKlxAZgromFKTQ5UfEOsLxo3A",
-					"refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rlc3QiLCJncm91cHMiOlsiSW5zdGl0dXRpb25Qb3J0YWwiXSwic3ViIjoiNTI1NGYwODctMTIxNC00NWNkLTk0YWUtZmRhNTNjODM1MTk3IiwiaWF0IjoxNjg2OTI0NjI5LCJleHAiOjI1ODY5MjQ2MjksImp0aSI6ImYyYTU3ZWIzLTE4MDgtNDg5Ni04NjI5LWEyZTQ3MmI4NDdmOCJ9.HBrJOSBPgYYwflD260-eGh_-FZN5-5R-gdRpSq3FArQx12EUGLu5EThjwjjEgW3hljyGyfXIOtJFikLaPFfermMw0V58NEb-jPrBm9stQM1Uo3dEiX2mff2bdmB3CWset39CJcB5ZLjfiT94WcU4Gtka2uDdkVEf_Uq7Y7Mzra6rqqKoNIipX7wHeMrgcj_03zlXGKRByqeBoxQHlHciPwbNyrpzkBb6LQlWjOHeg3bAtBFG-gAzM_Q6d_mIs0BED_7Ydv_4IqUNa8UXDrkkciuifuIh7n3kQHEPmLEA9fMIv3TpbpneIa1irfx9PSKlxAZgromFKTQ5UfEOsLxo3A",
-					"token_type": "Bearer",
-					"expires_in": 310000000
-				
-			}
+    "jsonBody": {
+      "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rlc3QiLCJncm91cHMiOlsiSW5zdGl0dXRpb25Qb3J0YWwiXSwic3ViIjoiNTI1NGYwODctMTIxNC00NWNkLTk0YWUtZmRhNTNjODM1MTk3IiwiaWF0IjoxNjg2OTI0NjI5LCJleHAiOjI1ODY5MjQ2MjksImp0aSI6ImYyYTU3ZWIzLTE4MDgtNDg5Ni04NjI5LWEyZTQ3MmI4NDdmOCJ9.HBrJOSBPgYYwflD260-eGh_-FZN5-5R-gdRpSq3FArQx12EUGLu5EThjwjjEgW3hljyGyfXIOtJFikLaPFfermMw0V58NEb-jPrBm9stQM1Uo3dEiX2mff2bdmB3CWset39CJcB5ZLjfiT94WcU4Gtka2uDdkVEf_Uq7Y7Mzra6rqqKoNIipX7wHeMrgcj_03zlXGKRByqeBoxQHlHciPwbNyrpzkBb6LQlWjOHeg3bAtBFG-gAzM_Q6d_mIs0BED_7Ydv_4IqUNa8UXDrkkciuifuIh7n3kQHEPmLEA9fMIv3TpbpneIa1irfx9PSKlxAZgromFKTQ5UfEOsLxo3A",
+      "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJodHRwczovL3Rlc3QiLCJncm91cHMiOlsiSW5zdGl0dXRpb25Qb3J0YWwiXSwic3ViIjoiNTI1NGYwODctMTIxNC00NWNkLTk0YWUtZmRhNTNjODM1MTk3IiwiaWF0IjoxNjg2OTI0NjI5LCJleHAiOjI1ODY5MjQ2MjksImp0aSI6ImYyYTU3ZWIzLTE4MDgtNDg5Ni04NjI5LWEyZTQ3MmI4NDdmOCJ9.HBrJOSBPgYYwflD260-eGh_-FZN5-5R-gdRpSq3FArQx12EUGLu5EThjwjjEgW3hljyGyfXIOtJFikLaPFfermMw0V58NEb-jPrBm9stQM1Uo3dEiX2mff2bdmB3CWset39CJcB5ZLjfiT94WcU4Gtka2uDdkVEf_Uq7Y7Mzra6rqqKoNIipX7wHeMrgcj_03zlXGKRByqeBoxQHlHciPwbNyrpzkBb6LQlWjOHeg3bAtBFG-gAzM_Q6d_mIs0BED_7Ydv_4IqUNa8UXDrkkciuifuIh7n3kQHEPmLEA9fMIv3TpbpneIa1irfx9PSKlxAZgromFKTQ5UfEOsLxo3A",
+      "token_type": "Bearer",
+      "expires_in": 310000000
     }
+  }
 }

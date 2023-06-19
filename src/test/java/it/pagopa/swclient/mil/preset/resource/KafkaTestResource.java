@@ -105,7 +105,9 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager, D
                     "kafka-security-protocol", "SASL_PLAINTEXT",
                     "kafka-sasl-mechanism", "PLAIN",
                     "kafka-sasl-jaas-config", "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"user\" password=\"bitnami\";",
-                    "kafka-topic", topic
+                    "kafka-topic", topic,
+                    // mandatory for reading the first ever message on the topic
+                    "mp.messaging.incoming.presets.auto.offset.reset", "earliest"
             );
         }
 		catch (Exception e) {
