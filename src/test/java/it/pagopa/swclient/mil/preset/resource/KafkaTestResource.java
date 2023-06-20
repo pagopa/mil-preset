@@ -31,6 +31,11 @@ public class KafkaTestResource implements QuarkusTestResourceLifecycleManager, D
     private DevServicesContext devServicesContext;
 
     @Override
+    public int order() {
+        return 1;
+    }
+
+    @Override
     public void setIntegrationTestContext(DevServicesContext devServicesContext){
         this.devServicesContext = devServicesContext;
     }

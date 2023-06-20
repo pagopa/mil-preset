@@ -1,17 +1,27 @@
 package it.pagopa.swclient.mil.preset.it;
 
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoCollection;
+import io.quarkus.test.common.DevServicesContext;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.junit.TestProfile;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import it.pagopa.swclient.mil.preset.bean.Role;
 import it.pagopa.swclient.mil.preset.bean.SubscribeRequest;
 import it.pagopa.swclient.mil.preset.bean.Subscriber;
+import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
+import it.pagopa.swclient.mil.preset.resource.InjectTokenGenerator;
 import it.pagopa.swclient.mil.preset.resource.TerminalsResource;
 import it.pagopa.swclient.mil.preset.util.PresetTestData;
 import it.pagopa.swclient.mil.preset.util.TokenGenerator;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.codecs.configuration.CodecRegistries;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,19 +44,26 @@ import static io.restassured.RestAssured.given;
 @TestHTTPEndpoint(TerminalsResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class TerminalsResourceTestIT {
+class TerminalsResourceTestIT implements DevServicesContext.ContextAware {
 
     static final Logger logger = LoggerFactory.getLogger(TerminalsResourceTestIT.class);
+
+    @InjectTokenGenerator
+    TokenGenerator tokenGenerator;
+
+    DevServicesContext devServicesContext;
 
     MongoClient mongoClient;
 
     Map<String, String> posHeaders;
     Map<String, String> institutionPortalHeaders;
 
-    String bearerInstitutionPortal;
-    String bearerSlavePos;
-
     Map<String, String> subscriberMap;
+
+    @Override
+    public void setIntegrationTestContext(DevServicesContext devServicesContext) {
+        this.devServicesContext = devServicesContext;
+    }
 
     @BeforeAll
     void createTestObjects() {
@@ -54,10 +71,20 @@ class TerminalsResourceTestIT {
         posHeaders = PresetTestData.getPosHeaders(true, true);
         institutionPortalHeaders = PresetTestData.getInstitutionPortalHeaders();
 
-        bearerInstitutionPortal = /*"Bearer " +*/ TokenGenerator.generate("InstitutionPortal");
-        bearerSlavePos = /*"Bearer " ++*/ TokenGenerator.generate("SlavePos");
-
         subscriberMap = new HashMap<>();
+
+        // initialize mongo client
+        CodecRegistry pojoCodecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
+                CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+
+        String mongoExposedPort = devServicesContext.devServicesProperties().get("test.mongo.exposed-port");
+        mongoClient = MongoClients.create("mongodb://127.0.0.1:" + mongoExposedPort);
+
+        MongoCollection<SubscriberEntity> collection = mongoClient.getDatabase("mil")
+                .getCollection("subscribers", SubscriberEntity.class)
+                .withCodecRegistry(pojoCodecRegistry);
+
+        collection.drop();
     }
 
     @AfterAll
@@ -80,7 +107,7 @@ class TerminalsResourceTestIT {
                 .headers(institutionPortalHeaders)
                 .and()
                 .auth()
-                .oauth2(bearerInstitutionPortal)
+                .oauth2(tokenGenerator.getToken(Role.INSTITUTION_PORTAL))
                 .and()
                 .pathParam("paTaxCode", PresetTestData.PA_TAX_CODE)
                 .when()
@@ -118,7 +145,7 @@ class TerminalsResourceTestIT {
                 .headers(institutionPortalHeaders)
                 .and()
                 .auth()
-                .oauth2(bearerInstitutionPortal)
+                .oauth2(tokenGenerator.getToken(Role.INSTITUTION_PORTAL))
                 .and()
                 .pathParam("paTaxCode", "00000000000")
                 .when()
@@ -145,7 +172,7 @@ class TerminalsResourceTestIT {
                 .headers(posHeaders)
                 .and()
                 .auth()
-                .oauth2(bearerSlavePos)
+                .oauth2(tokenGenerator.getToken(Role.SLAVE_POS))
                 .and()
                 .pathParam("paTaxCode", PresetTestData.PA_TAX_CODE)
                 .pathParam("subscriberId", subscriberMap.keySet().toArray()[0])
@@ -168,7 +195,7 @@ class TerminalsResourceTestIT {
                 .headers(institutionPortalHeaders)
                 .and()
                 .auth()
-                .oauth2(bearerInstitutionPortal)
+                .oauth2(tokenGenerator.getToken(Role.INSTITUTION_PORTAL))
                 .and()
                 .pathParam("paTaxCode", PresetTestData.PA_TAX_CODE)
                 .pathParam("subscriberId", subscriberMap.keySet().toArray()[1])
@@ -192,7 +219,7 @@ class TerminalsResourceTestIT {
                 .headers(posHeaders)
                 .and()
                 .auth()
-                .oauth2(bearerSlavePos)
+                .oauth2(tokenGenerator.getToken(Role.SLAVE_POS))
                 .and()
                 .pathParam("paTaxCode", PresetTestData.PA_TAX_CODE)
                 .pathParam("subscriberId", "a00aa0")
@@ -219,7 +246,7 @@ class TerminalsResourceTestIT {
                 .headers(posHeaders)
                 .and()
                 .auth()
-                .oauth2(bearerSlavePos)
+                .oauth2(tokenGenerator.getToken(Role.SLAVE_POS))
                 .and()
                 .body(request)
                 .when()
@@ -257,7 +284,7 @@ class TerminalsResourceTestIT {
                 .headers(headerMap)
                 .and()
                 .auth()
-                .oauth2(bearerSlavePos)
+                .oauth2(tokenGenerator.getToken(Role.SLAVE_POS))
                 .and()
                 .body(request)
                 .when()
@@ -292,7 +319,7 @@ class TerminalsResourceTestIT {
                 .headers(posHeaders)
                 .and()
                 .auth()
-                .oauth2(bearerSlavePos)
+                .oauth2(tokenGenerator.getToken(Role.SLAVE_POS))
                 .and()
                 .body(request)
                 .when()

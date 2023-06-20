@@ -14,7 +14,9 @@ import it.pagopa.swclient.mil.preset.ErrorCode;
 import it.pagopa.swclient.mil.preset.bean.CreatePresetRequest;
 import it.pagopa.swclient.mil.preset.bean.PaymentTransaction;
 import it.pagopa.swclient.mil.preset.bean.PresetOperation;
+import it.pagopa.swclient.mil.preset.bean.Role;
 import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
+import it.pagopa.swclient.mil.preset.resource.InjectTokenGenerator;
 import it.pagopa.swclient.mil.preset.resource.PresetsResource;
 import it.pagopa.swclient.mil.preset.util.PresetTestData;
 import it.pagopa.swclient.mil.preset.util.TokenGenerator;
@@ -44,11 +46,14 @@ import static io.restassured.RestAssured.given;
 @TestHTTPEndpoint(PresetsResource.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class PresetsResourceTestIT {
+class PresetsResourceTestIT implements DevServicesContext.ContextAware {
 
 	static final Logger logger = LoggerFactory.getLogger(PresetsResourceTestIT.class);
 	public static final String NOTICE_NUMBER = "485564829563528563";
 	public static final String OPERATION_PAYMENT_NOTICE = "PAYMENT_NOTICE";
+
+	@InjectTokenGenerator
+	TokenGenerator tokenGenerator;
 
 	DevServicesContext devServicesContext;
 
@@ -62,9 +67,11 @@ class PresetsResourceTestIT {
 	String subscriberId;
 	String presetId;
 
-	String bearerInstitutionPortal;
-	String bearerSlavePos;
-	
+	@Override
+	public void setIntegrationTestContext(DevServicesContext devServicesContext) {
+		this.devServicesContext = devServicesContext;
+	}
+
 	@BeforeAll
 	void createTestObjects() {
 
@@ -81,14 +88,18 @@ class PresetsResourceTestIT {
 		String mongoExposedPort = devServicesContext.devServicesProperties().get("test.mongo.exposed-port");
 		mongoClient = MongoClients.create("mongodb://127.0.0.1:" + mongoExposedPort);
 
-		MongoCollection<SubscriberEntity> collection = mongoClient.getDatabase("mil")
+		MongoCollection<SubscriberEntity> subscribersCollection = mongoClient.getDatabase("mil")
 				.getCollection("subscribers", SubscriberEntity.class)
 				.withCodecRegistry(pojoCodecRegistry);
 
-		collection.insertMany(List.of(subscriberEntity));
-        
-		bearerInstitutionPortal = TokenGenerator.generate("InstitutionPortal");
-		bearerSlavePos			= TokenGenerator.generate("SlavePos");
+		subscribersCollection.drop();
+		subscribersCollection.insertMany(List.of(subscriberEntity));
+
+		MongoCollection<SubscriberEntity> presetsCollection = mongoClient.getDatabase("mil")
+				.getCollection("presets", SubscriberEntity.class)
+				.withCodecRegistry(pojoCodecRegistry);
+
+		presetsCollection.drop();
 
 	}
 	
@@ -120,7 +131,7 @@ class PresetsResourceTestIT {
 				.headers(institutionPortalHeaders)
 				.and()
 				.auth()
-				.oauth2(bearerInstitutionPortal)
+				.oauth2(tokenGenerator.getToken(Role.INSTITUTION_PORTAL))
 				.and()
 				.body(request)
 				.when()
@@ -156,7 +167,7 @@ class PresetsResourceTestIT {
 				.headers(institutionPortalHeaders)
 				.and()
 				.auth()
-				.oauth2(bearerInstitutionPortal)
+				.oauth2(tokenGenerator.getToken(Role.INSTITUTION_PORTAL))
 				.and()
 				.body(request)
 				.when()
@@ -179,7 +190,7 @@ class PresetsResourceTestIT {
 				.headers(institutionPortalHeaders)
 				.and()
 				.auth()
-				.oauth2(bearerInstitutionPortal)
+				.oauth2(tokenGenerator.getToken(Role.INSTITUTION_PORTAL))
 				.and()
 				.pathParam("paTaxCode", PresetTestData.PA_TAX_CODE)
 				.pathParam("subscriberId", subscriberId)
@@ -225,7 +236,7 @@ class PresetsResourceTestIT {
 				.headers(institutionPortalHeaders)
 				.and()
 				.auth()
-				.oauth2(bearerInstitutionPortal)
+				.oauth2(tokenGenerator.getToken(Role.INSTITUTION_PORTAL))
 				.and()
 				.pathParam("paTaxCode", PresetTestData.PA_TAX_CODE)
 				.pathParam("subscriberId", subscriberId)
@@ -252,7 +263,7 @@ class PresetsResourceTestIT {
 				.headers(posHeaders)
 				.and()
 				.auth()
-				.oauth2(bearerSlavePos)
+				.oauth2(tokenGenerator.getToken(Role.SLAVE_POS))
 				.and()
 				.pathParam("paTaxCode", PresetTestData.PA_TAX_CODE)
 				.pathParam("subscriberId", subscriberId)
@@ -264,18 +275,18 @@ class PresetsResourceTestIT {
 
 		Assertions.assertEquals(200, response.statusCode());
 
-			Assertions.assertEquals(subscriberId, response.jsonPath().getString("subscriberId"));
+		Assertions.assertEquals(subscriberId, response.jsonPath().getString("subscriberId"));
 
-			Assertions.assertEquals(NOTICE_NUMBER, response.jsonPath().getString("noticeNumber"));
-			Assertions.assertEquals(PresetTestData.PA_TAX_CODE, response.jsonPath().getString("paTaxCode"));
-			Assertions.assertEquals(OPERATION_PAYMENT_NOTICE, response.jsonPath().getString("operationType"));
-			Assertions.assertEquals(PresetTestData.PA_TAX_CODE, response.jsonPath().getString("noticeTaxCode"));
-			Assertions.assertEquals(presetId, response.jsonPath().getString("presetId"));
-			Assertions.assertEquals("TO_EXECUTE", response.jsonPath().getString("status"));
-			Assertions.assertNotNull(response.jsonPath().getString("statusTimestamp"));
-			Assertions.assertNotNull(response.jsonPath().getString("creationTimestamp"));
+		Assertions.assertEquals(NOTICE_NUMBER, response.jsonPath().getString("noticeNumber"));
+		Assertions.assertEquals(PresetTestData.PA_TAX_CODE, response.jsonPath().getString("paTaxCode"));
+		Assertions.assertEquals(OPERATION_PAYMENT_NOTICE, response.jsonPath().getString("operationType"));
+		Assertions.assertEquals(PresetTestData.PA_TAX_CODE, response.jsonPath().getString("noticeTaxCode"));
+		Assertions.assertEquals(presetId, response.jsonPath().getString("presetId"));
+		Assertions.assertEquals("TO_EXECUTE", response.jsonPath().getString("status"));
+		Assertions.assertNotNull(response.jsonPath().getString("statusTimestamp"));
+		Assertions.assertNotNull(response.jsonPath().getString("creationTimestamp"));
 
-			Assertions.assertNull(response.jsonPath().getJsonObject("statusDetails"));
+		Assertions.assertNull(response.jsonPath().getJsonObject("statusDetails"));
 	}
 
 	@Test
@@ -287,7 +298,7 @@ class PresetsResourceTestIT {
 				.headers(posHeaders)
 				.and()
 				.auth()
-				.oauth2(bearerSlavePos)
+				.oauth2(tokenGenerator.getToken(Role.SLAVE_POS))
 				.and()
 				.pathParam("paTaxCode", PresetTestData.PA_TAX_CODE)
 				.pathParam("subscriberId", subscriberId)

@@ -25,7 +25,12 @@ public class MongoTestResource implements QuarkusTestResourceLifecycleManager, D
     private GenericContainer<?> mongoContainer;
 
     private DevServicesContext devServicesContext;
-    
+
+	@Override
+	public int order() {
+		return 1;
+	}
+
 	@Override
 	public void setIntegrationTestContext(DevServicesContext devServicesContext){
 		  this.devServicesContext = devServicesContext;
@@ -80,7 +85,7 @@ public class MongoTestResource implements QuarkusTestResourceLifecycleManager, D
 		return new Network() {
 			@Override
 			public String getId() {
-				return devServicesContext.containerNetworkId().get();
+				return devServicesContext.containerNetworkId().orElse(null);
 			}
 
 			@Override

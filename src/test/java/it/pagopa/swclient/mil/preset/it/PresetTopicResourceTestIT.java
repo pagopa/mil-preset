@@ -91,10 +91,12 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 
 		PresetEntity presetEntity = PresetTestData.getPresetEntity(presetId, "y46tr3");
 
-		mongoClient.getDatabase("mil")
+		MongoCollection<PresetEntity> presetCollection = mongoClient.getDatabase("mil")
 				.getCollection("presets", PresetEntity.class)
-				.withCodecRegistry(pojoCodecRegistry)
-				.insertOne(presetEntity);
+				.withCodecRegistry(pojoCodecRegistry);
+		presetCollection.drop();
+
+		presetCollection.insertOne(presetEntity);
 
 		String currentTimestamp = DateUtils.getCurrentTimestamp();
 
