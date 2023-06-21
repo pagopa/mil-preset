@@ -53,9 +53,7 @@
 								}
 							],
 							"protocolProfileBehavior": {
-								"disabledSystemHeaders": {
-									"content-type": true
-								}
+								"disabledSystemHeaders": {}
 							},
 							"request": {
 								"method": "POST",
@@ -89,11 +87,6 @@
 										"key": "MerchantId",
 										"value": "{{merchant_id}}",
 										"type": "text"
-									},
-									{
-										"key": "Content-Type",
-										"value": "application/x-www-form-urlencoded",
-										"type": "default"
 									}
 								],
 								"body": {
@@ -179,9 +172,7 @@
 								}
 							],
 							"protocolProfileBehavior": {
-								"disabledSystemHeaders": {
-									"content-type": true
-								}
+								"disabledSystemHeaders": {}
 							},
 							"request": {
 								"method": "POST",
@@ -194,11 +185,6 @@
 									{
 										"key": "Version",
 										"value": "{{mil_preset_version}}",
-										"type": "text"
-									},
-									{
-										"key": "Content-Type",
-										"value": "application/x-www-form-urlencoded",
 										"type": "text"
 									}
 								],
@@ -6694,7 +6680,7 @@
 									"    var jsonData = pm.response.json();\r",
 									"    pm.expect(jsonData.subscribers[0].acquirerId).to.eql(pm.environment.get(\"acquirer_id\"));\r",
 									"    pm.expect(jsonData.subscribers[0].channel).to.eql(pm.collectionVariables.get(\"channel\"));\r",
-									"    pm.expect(jsonData.subscribers[0].merchantId).to.eql(pm.collectionVariables.get(\"merchant_id\"));\r",
+									"    pm.expect(jsonData.subscribers[0].merchantId).to.eql(pm.environment.get(\"merchant_id\"));\r",
 									"    pm.expect(jsonData.subscribers[0].terminalId).to.eql(pm.collectionVariables.get(\"terminal_id\"));\r",
 									"    pm.expect(jsonData.subscribers[0].paTaxCode).to.eql(pm.collectionVariables.get(\"pa_tax_code\"));\r",
 									"    pm.expect(jsonData.subscribers[0].subscriberId).to.eql(pm.collectionVariables.get(\"subscriber_id\"));\r",
@@ -7893,11 +7879,6 @@
 		{
 			"key": "channel",
 			"value": "POS",
-			"type": "default"
-		},
-		{
-			"key": "merchant_id",
-			"value": "12346789",
 			"type": "default"
 		},
 		{

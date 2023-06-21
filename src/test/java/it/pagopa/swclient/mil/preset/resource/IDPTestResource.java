@@ -86,8 +86,9 @@ public class IDPTestResource implements QuarkusTestResourceLifecycleManager, Dev
 
     private void generateTokenResponseFile(Role... roles) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
+        String clientId = UUID.randomUUID().toString();
         for (Role role : roles) {
-            String token = tokenGenerator.getToken(role);
+            String token = tokenGenerator.getToken(role, clientId);
             AccessToken accessToken = new AccessToken(token, token, 3600);
             Files.writeString(Path.of("./target/generated-idp-files/" + role.label + ".json"),
                     objectMapper.writeValueAsString(accessToken),

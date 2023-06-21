@@ -6,6 +6,7 @@ package it.pagopa.swclient.mil.preset.util;
 import java.security.PrivateKey;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.UUID;
 
 import it.pagopa.swclient.mil.preset.bean.Role;
 import org.eclipse.microprofile.jwt.Claims;
@@ -29,13 +30,16 @@ public class TokenGenerator {
 	}
 
 	public String getToken(Role role) {
+		return getToken(role, UUID.randomUUID().toString());
+	}
+
+	public String getToken(Role role, String clientId) {
 		
 		String token = null;
 		try {
 			token = Jwt
-					.issuer("http://wiremock-it:8080")
 					.groups(new HashSet<>(Collections.singletonList(role.label)))
-					.claim(Claims.sub.name(), "5254f087-1214-45cd-94ae-fda53c835197")
+					.subject(clientId)
 					.expiresIn(3600)
 					.jws()
 					.keyId(keyId)
