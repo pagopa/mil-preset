@@ -22,6 +22,7 @@ import it.pagopa.swclient.mil.preset.bean.UnsubscribeHeaders;
 import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
 import it.pagopa.swclient.mil.preset.dao.SubscriberRepository;
 import it.pagopa.swclient.mil.preset.utils.DateUtils;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -47,7 +48,7 @@ public class TerminalsResource {
 
 	@Inject
 	SubscriberRepository subscriberRepository;
-
+	
 	/**
 	 * The base URL for the location header returned by the subscribe API (i.e. the API management base URL)
 	 */
@@ -62,6 +63,7 @@ public class TerminalsResource {
 	 */
 	@GET
 	@Path("/{paTaxCode}")
+	@RolesAllowed({ "InstitutionPortal"}) 
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> getSubscribers(@Valid @BeanParam InstitutionPortalHeaders portalHeaders,
 
@@ -101,12 +103,14 @@ public class TerminalsResource {
 	 * @return no content, if the terminal was successfully unsubscribed, or 404 if no subscriber was found with the given id
 	 */
 	@DELETE
+	@RolesAllowed({ "SlavePos","InstitutionPortal" })
 	@Produces(MediaType.APPLICATION_JSON)
 	@Path(value = "/{paTaxCode}/{subscriberId}")
-	public Uni<Response> unsubscribe(@Valid @BeanParam UnsubscribeHeaders headers, SubscriberPathParams pathParams) {
+	public Uni<Response> unsubscribe(@Valid @BeanParam UnsubscribeHeaders headers, 
+								     @Valid SubscriberPathParams pathParams) {
 
 		Log.debugf("unsubscribe - Input parameters: %s, %s", headers, pathParams);
-
+		
 		return subscriberRepository.delete("subscriber.paTaxCode = :paTaxCode and subscriber.subscriberId = :subscriberId",
 						Parameters
 								.with("paTaxCode", pathParams.getPaTaxCode())
@@ -142,6 +146,7 @@ public class TerminalsResource {
 	 * @return 201 if the terminal was subscribed
 	 */
 	@POST
+	@RolesAllowed({ "SlavePos" })
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Uni<Response> subscribe(@Valid @BeanParam CommonHeader commonHeader,
@@ -235,7 +240,9 @@ public class TerminalsResource {
 		subscriber.setMerchantId(commonHeader.getMerchantId());
 		subscriber.setPaTaxCode(subscribeRequest.getPaTaxCode());
 		subscriber.setSubscriberId(subscriberId);
-		subscriber.setSubscriptionTimestamp(DateUtils.getCurrentTimestamp());
+		String currentTimestamp = DateUtils.getCurrentTimestamp();
+		subscriber.setSubscriptionTimestamp(currentTimestamp);
+		subscriber.setLastUsageTimestamp(currentTimestamp);
 		subscriber.setTerminalId(commonHeader.getTerminalId());
 
 		SubscriberEntity subscriberEntity = new SubscriberEntity();

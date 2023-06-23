@@ -1,8 +1,28 @@
 package it.pagopa.swclient.mil.preset.resource;
 
-import com.google.common.collect.ImmutableMap;
-import io.quarkus.test.common.DevServicesContext;
-import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Date;
+import java.util.Map;
+import java.util.UUID;
+
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.RSAKey;
+import org.apache.commons.io.IOUtils;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.slf4j.Logger;
@@ -13,7 +33,10 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
+
+import io.quarkus.test.common.DevServicesContext;
+import io.quarkus.test.common.QuarkusTestResourceLifecycleManager;
 
 
 public class WiremockTestResource implements QuarkusTestResourceLifecycleManager, DevServicesContext.ContextAware {
@@ -24,6 +47,11 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
     private GenericContainer<?> wiremockContainer;
 
     private DevServicesContext devServicesContext;
+
+    @Override
+    public int order() {
+        return 1;
+    }
 
     public void setIntegrationTestContext(DevServicesContext devServicesContext) {
         this.devServicesContext = devServicesContext;
@@ -38,27 +66,23 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
                 .withNetwork(getNetwork())
                 .withNetworkAliases(WIREMOCK_NETWORK_ALIAS)
                 //.withNetworkMode(devServicesContext.containerNetworkId().get())
-                .waitingFor(Wait.forListeningPort());
+                .waitingFor(Wait.forListeningPort())
+                .withExposedPorts(8080);
 
-        wiremockContainer.withLogConsumer(new Slf4jLogConsumer(logger));
+        //wiremockContainer.withLogConsumer(new Slf4jLogConsumer(logger));
         wiremockContainer.setCommand("--verbose --local-response-templating");
-        wiremockContainer.withFileSystemBind("./src/test/resources/it/wiremock", "/home/wiremock");
+        wiremockContainer.withFileSystemBind("./src/test/resources/it/wiremock/mappings", "/home/wiremock/mappings");
+        wiremockContainer.withFileSystemBind("./target/generated-idp-files", "/home/wiremock/__files");
 
         wiremockContainer.start();
 
-        final String wiremockEndpoint = "http://" + WIREMOCK_NETWORK_ALIAS + ":" + 8080;
+        final Integer exposedPort = wiremockContainer.getMappedPort(8080);
+        devServicesContext.devServicesProperties().put("test.wiremock.exposed-port", exposedPort.toString());
 
         // Pass the configuration to the application under test
         return ImmutableMap.of(
-                "node.rest-service.url", wiremockEndpoint,
-                "node.soap-service.url", wiremockEndpoint + "/nodo/node-for-psp/v1",
-                "mil.rest-service.url", wiremockEndpoint
+                "jwt-publickey-location", "http://" + WIREMOCK_NETWORK_ALIAS + ":8080/jwks.json"
         );
-
-    }
-
-    private static void generateMockFilesForAuth() {
-
 
     }
 
@@ -70,7 +94,7 @@ public class WiremockTestResource implements QuarkusTestResourceLifecycleManager
         return new Network() {
             @Override
             public String getId() {
-                return devServicesContext.containerNetworkId().get();
+                return devServicesContext.containerNetworkId().orElse(null);
             }
 
             @Override

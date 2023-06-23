@@ -7,7 +7,6 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
-import io.quarkus.kafka.client.serialization.ObjectMapperSerializer;
 import io.quarkus.test.common.DevServicesContext;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 import io.quarkus.test.junit.TestProfile;
@@ -18,11 +17,11 @@ import it.pagopa.swclient.mil.preset.bean.PaymentTransactionStatus;
 import it.pagopa.swclient.mil.preset.bean.Preset;
 import it.pagopa.swclient.mil.preset.bean.PresetOperation;
 import it.pagopa.swclient.mil.preset.dao.PresetEntity;
+import it.pagopa.swclient.mil.preset.util.KafkaUtils;
 import it.pagopa.swclient.mil.preset.util.PresetTestData;
 import it.pagopa.swclient.mil.preset.utils.DateUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -40,7 +39,6 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -59,13 +57,15 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 
 	MongoClient mongoClient;
 
+	String topic;
+
 	@Override
 	public void setIntegrationTestContext(DevServicesContext devServicesContext) {
 		this.devServicesContext = devServicesContext;
 	}
 
 	@BeforeAll
-	void createTestData() {
+	void initializeClients() {
 
 		// initialize mongo client
 		pojoCodecRegistry = CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
@@ -74,15 +74,8 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 		String mongoExposedPort = devServicesContext.devServicesProperties().get("test.mongo.exposed-port");
 		mongoClient = MongoClients.create("mongodb://127.0.0.1:" + mongoExposedPort);
 
-		// initialize kafka producer
-		Properties kafkaConfig = new Properties();
-		kafkaConfig.put("bootstrap.servers", devServicesContext.devServicesProperties().get("test.kafka.bootstrap-server"));
-		kafkaConfig.put("security.protocol", "SASL_PLAINTEXT");
-		kafkaConfig.put("sasl.mechanism","SCRAM-SHA-256");
-		kafkaConfig.put("sasl.jaas.config","org.apache.kafka.common.security.scram.ScramLoginModule required username=\"testuser\" password=\"testuser\";");
-		kafkaConfig.put("linger.ms", 1);
-
-		paymentTransactionProducer = new KafkaProducer<>(kafkaConfig, new StringSerializer(), new ObjectMapperSerializer<>());
+		paymentTransactionProducer = KafkaUtils.getKafkaProducer(devServicesContext, PaymentTransaction.class);
+		topic = devServicesContext.devServicesProperties().get("test.kafka.topic");
 	}
 
 	@Test
@@ -92,26 +85,28 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 
 		PaymentTransaction paymentTransaction = PresetTestData.getPaymentTransaction(
 				PaymentTransactionStatus.PENDING,
-				PresetTestData.getMilHeaders(true, true),
+				PresetTestData.getPosHeaders(true, true),
 				PresetTestData.getPreset(presetId, "y46tr3"),
 				1);
 
 		PresetEntity presetEntity = PresetTestData.getPresetEntity(presetId, "y46tr3");
 
-		mongoClient.getDatabase("mil")
+		MongoCollection<PresetEntity> presetCollection = mongoClient.getDatabase("mil")
 				.getCollection("presets", PresetEntity.class)
-				.withCodecRegistry(pojoCodecRegistry)
-				.insertOne(presetEntity);
+				.withCodecRegistry(pojoCodecRegistry);
+		presetCollection.drop();
+
+		presetCollection.insertOne(presetEntity);
 
 		String currentTimestamp = DateUtils.getCurrentTimestamp();
 
-		paymentTransactionProducer.send(new ProducerRecord<>("presets", paymentTransaction));
+		paymentTransactionProducer.send(new ProducerRecord<>(topic, paymentTransaction));
 
 		Awaitility
 				.with().pollInterval(10, TimeUnit.SECONDS)
 				.and().timeout(Duration.of(30, ChronoUnit.SECONDS))
 				.await().until(() -> {
-					PresetOperation presetOperation = getPresetOperation(presetId);
+					PresetOperation presetOperation = getPresetOperation(presetId, true);
 					//return presetOperation.getStatusTimestamp().compareTo(currentTimestamp) > 0;
 					return presetOperation.getStatus().equals(PresetStatus.EXECUTED.name());
 				});
@@ -120,7 +115,7 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 
 	}
 
-	private PresetOperation getPresetOperation(String presetId) {
+	private PresetOperation getPresetOperation(String presetId, boolean log) {
 
 		MongoCollection<PresetEntity> collection = mongoClient.getDatabase("mil")
 				.getCollection("presets", PresetEntity.class)
@@ -132,14 +127,14 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
 		try (MongoCursor<PresetEntity> iterator = documents.iterator()) {
 			Assertions.assertTrue(iterator.hasNext());
 			PresetEntity presetEntity = iterator.next();
-			logger.info("Found preset operation entry on DB: {}", presetEntity.presetOperation);
+			if (log) logger.info("Found preset operation entry on DB: {}", presetEntity.presetOperation);
 			return presetEntity.presetOperation;
 		}
 	}
 
 	private void checkDatabaseData(String presetId, PresetStatus transactionStatus, PaymentTransaction paymentTransaction) {
 
-		PresetOperation presetOperation = getPresetOperation(presetId);
+		PresetOperation presetOperation = getPresetOperation(presetId, false);
 
 		Assertions.assertEquals(PresetStatus.EXECUTED.name(), presetOperation.getStatus());
 
@@ -195,6 +190,7 @@ class PresetTopicResourceTestIT implements DevServicesContext.ContextAware {
     	transaction.setPaymentMethod("CASH");
     	transaction.setPaymentTimestamp("2023-05-21T09:29:34.526");
     	transaction.setCloseTimestamp("2023-05-21T10:29:34.526");
+
     	return transaction;
     }
 

@@ -29,13 +29,16 @@ public final class ErrorCode {
 
 	// business logic errors
 	public static final String SUBSCRIBER_NOT_FOUND						= MODULE_ID + "00000F";
-	public static final String SUBSCRIBER_ALREADY_EXISTS				= MODULE_ID + "00000F";
-	public static final String PRESET_OPERATION_NOT_FOUND				= MODULE_ID + "000010";
+	public static final String SUBSCRIBER_ALREADY_EXISTS				= MODULE_ID + "000010";
+	public static final String PRESET_OPERATION_NOT_FOUND				= MODULE_ID + "000011";
 
 
 	// integration errors
-	public static final String ERROR_WRITING_DATA_IN_DB					= MODULE_ID + "000011";
-	public static final String ERROR_READING_DATA_FROM_DB				= MODULE_ID + "000012";
+	public static final String ERROR_WRITING_DATA_IN_DB					= MODULE_ID + "000012";
+	public static final String ERROR_READING_DATA_FROM_DB				= MODULE_ID + "000013";
+	
+	public static final String ERROR_UNAUTHORIZED						= MODULE_ID + "000014";
+	public static final String ERROR_FORBIDDEN							= MODULE_ID + "000015";
 
 
 	private ErrorCode() {

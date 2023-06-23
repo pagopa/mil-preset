@@ -2,13 +2,19 @@ package it.pagopa.swclient.mil.preset.bean;
 
 import it.pagopa.swclient.mil.ErrorCode;
 import it.pagopa.swclient.mil.bean.Channel;
-import it.pagopa.swclient.mil.preset.validation.constraints.MerchantIdNotNullForPos;
+import it.pagopa.swclient.mil.preset.validation.constraints.AcquirerIdNotNullForRole;
+import it.pagopa.swclient.mil.preset.validation.constraints.ChannelNotNullForRole;
+import it.pagopa.swclient.mil.preset.validation.constraints.MerchantIdNotNullForRole;
+import it.pagopa.swclient.mil.preset.validation.constraints.TerminalIdNotNullForRole;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.HeaderParam;
 
-@MerchantIdNotNullForPos(message = ErrorCode.MERCHANT_ID_MUST_NOT_BE_NULL_FOR_POS_MSG)
+@MerchantIdNotNullForRole(roles = {Role.SLAVE_POS}, message = ErrorCode.MERCHANT_ID_MUST_NOT_BE_NULL_FOR_POS_MSG)
+@AcquirerIdNotNullForRole(roles = {Role.SLAVE_POS}, message = ErrorCode.ACQUIRER_ID_MUST_NOT_BE_NULL_MSG)
+@ChannelNotNullForRole(roles = {Role.SLAVE_POS}, message = ErrorCode.CHANNEL_MUST_NOT_BE_NULL_MSG)
+@TerminalIdNotNullForRole(roles = {Role.SLAVE_POS}, message = ErrorCode.TERMINAL_ID_MUST_NOT_BE_NULL_MSG)
 public class UnsubscribeHeaders {
 	/*
 	 * Request ID

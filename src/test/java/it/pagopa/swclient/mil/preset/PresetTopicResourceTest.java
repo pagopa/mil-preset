@@ -49,7 +49,7 @@ class PresetTopicResourceTest {
 
 		PaymentTransaction paymentTransaction = PresetTestData.getPaymentTransaction(
 				PaymentTransactionStatus.PENDING,
-				PresetTestData.getMilHeaders(true, true),
+				PresetTestData.getPosHeaders(true, true),
 				PresetTestData.getPreset(presetId, "x46tr3"),
 				1);
 

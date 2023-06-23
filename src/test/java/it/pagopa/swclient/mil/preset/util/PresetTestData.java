@@ -2,12 +2,16 @@ package it.pagopa.swclient.mil.preset.util;
 
 import it.pagopa.swclient.mil.preset.OperationType;
 import it.pagopa.swclient.mil.preset.PresetStatus;
+import it.pagopa.swclient.mil.preset.bean.CreatePresetRequest;
 import it.pagopa.swclient.mil.preset.bean.Notice;
 import it.pagopa.swclient.mil.preset.bean.PaymentTransaction;
 import it.pagopa.swclient.mil.preset.bean.PaymentTransactionStatus;
 import it.pagopa.swclient.mil.preset.bean.Preset;
 import it.pagopa.swclient.mil.preset.bean.PresetOperation;
+import it.pagopa.swclient.mil.preset.bean.Subscriber;
 import it.pagopa.swclient.mil.preset.dao.PresetEntity;
+import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
+import it.pagopa.swclient.mil.preset.utils.DateUtils;
 import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.Instant;
@@ -22,7 +26,7 @@ import java.util.UUID;
 
 public final class PresetTestData {
 
-    public static Map<String, String> getMilHeaders(boolean isPos, boolean isKnownAcquirer) {
+    public static Map<String, String> getPosHeaders(boolean isPos, boolean isKnownAcquirer) {
         Map<String, String> headerMap = new HashMap<>();
         headerMap.put("RequestId", UUID.randomUUID().toString());
         headerMap.put("Version", "1.0.0");
@@ -31,6 +35,13 @@ public final class PresetTestData {
         headerMap.put("TerminalId", "0aB9wXyZ");
         if (isPos) headerMap.put("MerchantId", "28405fHfk73x88D");
         headerMap.put("SessionId", UUID.randomUUID().toString());
+        return headerMap;
+    }
+
+    public static Map<String, String> getInstitutionPortalHeaders() {
+        Map<String, String> headerMap = new HashMap<>();
+        headerMap.put("RequestId", UUID.randomUUID().toString());
+        headerMap.put("Version", "1.0.0");
         return headerMap;
     }
 
@@ -130,6 +141,45 @@ public final class PresetTestData {
 
         return paymentTransaction;
 
+    }
+
+    public static SubscriberEntity getSubscriberEntity(String subscriberId, String paTaxCode,
+                                                       Map<String, String> posHeaders) {
+
+        Subscriber subscriber = new Subscriber();
+        subscriber.setAcquirerId(posHeaders.get("AcquirerId"));
+        subscriber.setChannel("Channel");
+        subscriber.setTerminalId("TerminalId");
+        subscriber.setMerchantId("MerchantId");
+
+        subscriber.setPaTaxCode(paTaxCode);
+
+        subscriber.setSubscriberId(subscriberId);
+        subscriber.setLabel("Test label");
+
+        String currentTimestamp = DateUtils.getCurrentTimestamp();
+        subscriber.setLastUsageTimestamp(currentTimestamp);
+        subscriber.setSubscriptionTimestamp(currentTimestamp);
+
+        SubscriberEntity subscriberEntity 	= new SubscriberEntity();
+        subscriberEntity.subscriber = subscriber;
+        subscriberEntity.id = subscriberId;
+
+        return subscriberEntity;
+    }
+
+    public static CreatePresetRequest getCreatePresetRequest() {
+        return getCreatePresetRequest("x46tr3");
+    }
+    
+    public static CreatePresetRequest getCreatePresetRequest(String subscriberId) {
+    	CreatePresetRequest request = new CreatePresetRequest();
+        request.setNoticeNumber("485564829563528563");
+        request.setNoticeTaxCode("15376371009");
+        request.setOperationType("PAYMENT_NOTICE");
+        request.setPaTaxCode(PA_TAX_CODE);
+        request.setSubscriberId(subscriberId);
+        return request;
     }
 
     public static final String PA_TAX_CODE = "15376371009";

@@ -20,6 +20,7 @@ import it.pagopa.swclient.mil.preset.dao.PresetRepository;
 import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
 import it.pagopa.swclient.mil.preset.dao.SubscriberRepository;
 import it.pagopa.swclient.mil.preset.utils.DateUtils;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -70,6 +71,7 @@ public class PresetsResource {
      * @return an {@link Uni} emitting an empty 201 Created response with the Location header populated
      */
     @POST
+    @RolesAllowed({ "InstitutionPortal" })
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Uni<Response> createPreset(@Valid @BeanParam InstitutionPortalHeaders portalHeaders,
@@ -112,6 +114,7 @@ public class PresetsResource {
      * @return an {@link Uni} emitting the list of {@link PresetOperation} configured for the subscriber
      */
     @GET
+    @RolesAllowed({ "InstitutionPortal" })
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{paTaxCode}/{subscriberId}")
     public Uni<Response> getPresets(@Valid @BeanParam InstitutionPortalHeaders headers, @Valid @BeanParam SubscriberPathParams pathParams) {
@@ -135,6 +138,7 @@ public class PresetsResource {
      * @return an {@link Uni} emitting the latest {@link PresetOperation} configured for the subscriber
      */
     @GET
+    @RolesAllowed({ "SlavePos" })
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{paTaxCode}/{subscriberId}/last_to_execute")
     public Uni<Response> getLastPresetsOperation(@Valid @BeanParam CommonHeader headers, @Valid @BeanParam SubscriberPathParams pathParams) {
