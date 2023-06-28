@@ -34,6 +34,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URI;
@@ -46,7 +47,7 @@ public class PresetsResource {
 	public static final String SUBSCRIBER_FILTER = "subscriber.paTaxCode = :paTaxCode and subscriber.subscriberId = :subscriberId";
 	public static final String PRESET_FILTER = "presetOperation.paTaxCode = :paTaxCode and presetOperation.subscriberId = :subscriberId";
 
-    public static final String LAST_PRESET_FILTER = PRESET_FILTER + " and presetOperation.status = 'TO_EXECUTE'";
+    public static final String LAST_PRESET_FILTER = PRESET_FILTER;
     public static final String PA_TAX_CODE = "paTaxCode";
     public static final String SUBSCRIBER_ID = "subscriberId";
 
@@ -204,7 +205,19 @@ public class PresetsResource {
 						)
 				.firstResult()
                 .onFailure().transform(PresetsResource::manageDbReadError)
-				.map(presetEntity -> presetEntity != null ? presetEntity.presetOperation : null);
+				.map(presetEntity -> {
+                    if (presetEntity != null) {
+                        if (StringUtils.equals(presetEntity.presetOperation.getStatus(), PresetStatus.TO_EXECUTE.name())) {
+                            return presetEntity.presetOperation;
+                        }
+                        else {
+                            Log.debugf("lastToExecute preset %s has status %s, will not be returned",
+                                    presetEntity.presetOperation.getPresetId(), presetEntity.presetOperation.getStatus());
+                            return null;
+                        }
+                    }
+                    else return null;
+                });
     }
 
     /**
