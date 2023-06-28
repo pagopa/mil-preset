@@ -611,7 +611,7 @@ class PresetsResourceTest {
         presetOperation.setNoticeTaxCode("15376371009");
         presetOperation.setOperationType(OperationType.PAYMENT_NOTICE.name());
         presetOperation.setPaTaxCode("15376371009");
-        presetOperation.setStatus(PresetStatus.EXECUTED.name());
+        presetOperation.setStatus(PresetStatus.TO_EXECUTE.name());
         presetOperation.setStatusTimestamp(timestamp);
         presetOperation.setSubscriberId("x46tr3");
         presetOperation.setStatusDetails(null);

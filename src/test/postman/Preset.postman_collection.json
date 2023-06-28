@@ -6395,7 +6395,7 @@
 					"response": []
 				},
 				{
-					"name": "1. Lista terminali (nessun terminale presente)",
+					"name": "1a. Lista terminali",
 					"event": [
 						{
 							"listen": "test",
@@ -6405,13 +6405,23 @@
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
-									"pm.test(\"response containes value\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    \r",
-									"    pm.expect(jsonData.subscribers).not.null;\r",
-									"    pm.expect(jsonData.subscribers).to.have.length(0);\r",
-									"    \r",
+									"pm.test(\"Body is correct\", function () {\r",
+									"    pm.expect(pm.response.text()).to.include(\"subscribers\");\r",
+									"    var subscribers = pm.response.json().subscribers;\r",
+									"    var subscriber = subscribers.find(obj => {\r",
+									"        return obj.terminalId === pm.collectionVariables.get(\"terminal_id\");\r",
+									"    });\r",
+									"\r",
+									"   if (subscriber != null) {\r",
+									"       console.log(\"Terminale già configurato [\" + subscriber.subscriber_id + \"], procedi alla cancellazione\");\r",
+									"       pm.collectionVariables.set(\"subscriber_id\", subscriber.subscriber_id);\r",
+									"   }\r",
+									"   else {\r",
+									"       console.log(\"Terminale non configurato\");\r",
+									"       pm.collectionVariables.set(\"subscriber_id\", \"000000\");\r",
+									"   }\r",
 									"});\r",
+									"\r",
 									""
 								],
 								"type": "text/javascript"
@@ -6464,6 +6474,85 @@
 								{
 									"key": "paTaxCode",
 									"value": "{{pa_tax_code}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1b. Cancellazione terminale",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.collectionVariables.get(\"subscriber_id\") == \"000000\") {\r",
+									"    pm.test(\"Status code is 404\", function () {\r",
+									"        pm.response.to.have.status(404);\r",
+									"    });\r",
+									"}\r",
+									"else {\r",
+									"    pm.test(\"Status code is 204\", function () {\r",
+									"        pm.response.to.have.status(204);\r",
+									"    });\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_portal}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "RequestId",
+								"value": "{{$guid}}",
+								"type": "text"
+							},
+							{
+								"key": "Version",
+								"value": "{{mil_preset_version}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{MIL_PRESET_BASE_URL}}/terminals/:paTaxCode/:subscriberId",
+							"host": [
+								"{{MIL_PRESET_BASE_URL}}"
+							],
+							"path": [
+								"terminals",
+								":paTaxCode",
+								":subscriberId"
+							],
+							"variable": [
+								{
+									"key": "paTaxCode",
+									"value": "{{pa_tax_code}}"
+								},
+								{
+									"key": "subscriberId",
+									"value": "{{subscriber_id}}"
 								}
 							]
 						}
@@ -6665,7 +6754,7 @@
 					"response": []
 				},
 				{
-					"name": "3. Lista terminali (1 terminale presente)",
+					"name": "3. Lista terminali",
 					"event": [
 						{
 							"listen": "test",
@@ -6677,14 +6766,21 @@
 									"\r",
 									"pm.test(\"Body is correct\", function () {\r",
 									"    pm.expect(pm.response.text()).to.include(\"subscribers\");\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.subscribers[0].acquirerId).to.eql(pm.environment.get(\"acquirer_id\"));\r",
-									"    pm.expect(jsonData.subscribers[0].channel).to.eql(pm.collectionVariables.get(\"channel\"));\r",
-									"    pm.expect(jsonData.subscribers[0].merchantId).to.eql(pm.environment.get(\"merchant_id\"));\r",
-									"    pm.expect(jsonData.subscribers[0].terminalId).to.eql(pm.collectionVariables.get(\"terminal_id\"));\r",
-									"    pm.expect(jsonData.subscribers[0].paTaxCode).to.eql(pm.collectionVariables.get(\"pa_tax_code\"));\r",
-									"    pm.expect(jsonData.subscribers[0].subscriberId).to.eql(pm.collectionVariables.get(\"subscriber_id\"));\r",
-									"    pm.expect(jsonData.subscribers[0].label).to.eql(pm.collectionVariables.get(\"label\"));\r",
+									"    var subscribers = pm.response.json().subscribers;\r",
+									"    console.log(subscribers);\r",
+									"    var subscriber = subscribers.find(obj => {\r",
+									"        console.log(obj.terminalId);\r",
+									"        return obj.terminalId === pm.collectionVariables.get(\"terminal_id\");\r",
+									"    })\r",
+									"\r",
+									"    console.log(subscriber);\r",
+									"    pm.expect(subscriber.acquirerId).to.eql(pm.environment.get(\"acquirer_id\"));\r",
+									"    pm.expect(subscriber.channel).to.eql(pm.collectionVariables.get(\"channel\"));\r",
+									"    pm.expect(subscriber.merchantId).to.eql(pm.environment.get(\"merchant_id\"));\r",
+									"    pm.expect(subscriber.terminalId).to.eql(pm.collectionVariables.get(\"terminal_id\"));\r",
+									"    pm.expect(subscriber.paTaxCode).to.eql(pm.collectionVariables.get(\"pa_tax_code\"));\r",
+									"    pm.expect(subscriber.subscriberId).to.eql(pm.collectionVariables.get(\"subscriber_id\"));\r",
+									"    pm.expect(subscriber.label).to.eql(pm.collectionVariables.get(\"label\"));\r",
 									"});\r",
 									"\r",
 									""
@@ -7841,6 +7937,98 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "5b. Cancellazione terminale da POS",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 204\", function () {\r",
+									"    pm.response.to.have.status(204);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_pos}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "RequestId",
+								"value": "{{$guid}}",
+								"type": "text"
+							},
+							{
+								"key": "Version",
+								"value": "{{mil_preset_version}}",
+								"type": "text"
+							},
+							{
+								"key": "AcquirerId",
+								"value": "{{acquirer_id}}",
+								"type": "text"
+							},
+							{
+								"key": "Channel",
+								"value": "{{channel}}",
+								"type": "text"
+							},
+							{
+								"key": "MerchantId",
+								"value": "{{merchant_id}}",
+								"type": "text"
+							},
+							{
+								"key": "TerminalId",
+								"value": "{{terminal_id}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{MIL_PRESET_BASE_URL}}/terminals/:paTaxCode/:subscriberId",
+							"host": [
+								"{{MIL_PRESET_BASE_URL}}"
+							],
+							"path": [
+								"terminals",
+								":paTaxCode",
+								":subscriberId"
+							],
+							"variable": [
+								{
+									"key": "paTaxCode",
+									"value": "{{pa_tax_code}}"
+								},
+								{
+									"key": "subscriberId",
+									"value": "{{subscriber_id}}"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
@@ -7873,7 +8061,7 @@
 		},
 		{
 			"key": "terminal_id",
-			"value": "0aB9wXyZ",
+			"value": "Test0001",
 			"type": "default"
 		},
 		{
