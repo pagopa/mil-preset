@@ -39,6 +39,7 @@ public final class ErrorCode {
 	
 	public static final String ERROR_UNAUTHORIZED						= MODULE_ID + "000014";
 	public static final String ERROR_FORBIDDEN							= MODULE_ID + "000015";
+	public static final String ERROR_DELETING_DATA_FROM_DB					= MODULE_ID + "000016";
 
 
 	private ErrorCode() {
