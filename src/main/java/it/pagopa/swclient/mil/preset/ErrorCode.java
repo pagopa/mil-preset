@@ -27,6 +27,8 @@ public final class ErrorCode {
 	public static final String NOTICE_NUMBER_MUST_NOT_BE_NULL 			= MODULE_ID + "00000D";
 	public static final String NOTICE_NUMBER_MUST_MATCH_REGEXP 			= MODULE_ID + "00000E";
 
+
+	public static final String PRESET_ID_MUST_NOT_BE_NULL = MODULE_ID + "000017";
 	// business logic errors
 	public static final String SUBSCRIBER_NOT_FOUND						= MODULE_ID + "00000F";
 	public static final String SUBSCRIBER_ALREADY_EXISTS				= MODULE_ID + "000010";
