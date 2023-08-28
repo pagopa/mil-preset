@@ -100,7 +100,7 @@ public class PresetsResource {
     }
 
     @DELETE
-   // @RolesAllowed({ "InstitutionPortal" })
+    @RolesAllowed({ "InstitutionPortal" })
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Path(value = "/{presetId}")
