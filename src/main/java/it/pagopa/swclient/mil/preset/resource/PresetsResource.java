@@ -282,26 +282,7 @@ public class PresetsResource {
     }
 
 
-    /**
-     * Delete a preset operation on the database
-     *
-     * @param presetEntity operation to delete
-     * @return an {@link Uni} emitting the persisted {@link PresetEntity}
-     */
-    /*private Uni<PresetEntity> deletePreset(
-                                            PresetEntity presetEntity) {
 
-
-        return presetRepository.delete(presetEntity)
-                .onFailure().transform(f -> {
-                    Log.errorf(f, "[%s] Error while deleting data in the DB", ErrorCode.ERROR_DELETING_DATA_FROM_DB);
-                    return new InternalServerErrorException(
-                            Response.status(Status.INTERNAL_SERVER_ERROR)
-                                    .entity(new Errors(List.of(ErrorCode.ERROR_DELETING_DATA_FROM_DB)))
-                                    .build());
-                });
-
-    }*/
 
     /**
      * Build the preset entity object to be persisted the {@link #persistPreset(Subscriber, CreatePresetRequest)} operation
