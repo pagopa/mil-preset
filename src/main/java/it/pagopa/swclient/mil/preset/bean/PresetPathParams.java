@@ -2,7 +2,6 @@ package it.pagopa.swclient.mil.preset.bean;
 
 import it.pagopa.swclient.mil.preset.ErrorCode;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.ws.rs.PathParam;
 
 public class PresetPathParams {
@@ -23,18 +22,17 @@ public class PresetPathParams {
 	}
 
 	/**
-	 * @param subscriberId the subscriberId to set
+	 * @param presetId the presetId to set
 	 */
-	public void setPresetId(String subscriberId) {
+	public void setPresetId(String presetId) {
 		this.presetId = presetId;
 	}
 
+
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("PresetPathParam [presetId=");
-		builder.append(presetId);
-		builder.append("]");
-		return builder.toString();
+		return "PresetPathParam [presetId=" +
+				presetId +
+				"]";
 	}
 }
