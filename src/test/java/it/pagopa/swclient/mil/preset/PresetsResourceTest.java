@@ -248,6 +248,30 @@ class PresetsResourceTest {
         Assertions.assertEquals(404, response.statusCode());
     }
 
+    @Test
+    @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
+    void deletePreset_500() {
+
+        Mockito
+                .when(presetRepository.delete(Mockito.any(String.class), Mockito.any(Object.class)))
+                .thenReturn(Uni.createFrom().failure(new TimeoutException()));
+
+
+
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .headers(presetHeaders)
+                .when()
+                .delete("774e7c64-0870-407a-b2cb-0f948b04fb9a")
+                .then()
+                .extract()
+                .response();
+
+        Assertions.assertEquals(500, response.statusCode());
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_WRITING_DATA_IN_DB));
+
+    }
+
 
     @Test
     @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
