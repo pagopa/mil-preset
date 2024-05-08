@@ -1,0 +1,888 @@
+openapi: 3.0.3
+
+info:
+  title: Preset Microservice
+  version: 1.0.0
+  description: This microservice handles preset operations
+  contact:
+    name: Antonio Tarricone
+    email: antonio.tarricone@pagopa.it
+
+servers:
+  - description: DEV
+    url: https://mil-d-apim.azure-api.net/mil-preset
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ------------------------------------------------------
+  # Terminals
+  # ------------------------------------------------------
+  /terminals:
+    post:
+      operationId: subscribe
+      summary: Subscribes a terminal to handle preset operations
+      parameters:
+        - $ref: 'common.yaml#/components/parameters/RequestId'
+        - $ref: 'common.yaml#/components/parameters/Version'
+        - $ref: 'common.yaml#/components/parameters/AcquirerId'
+        - $ref: 'common.yaml#/components/parameters/Channel'
+        - $ref: 'common.yaml#/components/parameters/MerchantId'
+        - $ref: 'common.yaml#/components/parameters/TerminalId'
+      requestBody:
+        $ref: '#/components/requestBodies/Subscribe'
+      responses:
+        "201":
+          $ref: '#/components/responses/Subscribe'
+        "400":
+          $ref: 'common.yaml#/components/responses/Error'
+        "401":
+          description: Access token or API key is missing or invalid
+        "403":
+          description: Forbidden
+        "409":
+          $ref: '#/components/responses/Subscribe'
+        "415":
+          description: Unsupported media type. Did you provide application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: 'common.yaml#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+  /terminals/{paTaxCode}/{subscriberId}:
+    delete:
+      operationId: unsubscriberForPreset
+      summary: Unsubscribes a terminal to handle preset operations
+      parameters:
+        - $ref: 'common.yaml#/components/parameters/RequestId'
+        - $ref: 'common.yaml#/components/parameters/Version'
+        - $ref: '#/components/parameters/AcquirerId'
+        - $ref: '#/components/parameters/Channel'
+        - $ref: '#/components/parameters/MerchantId'
+        - $ref: '#/components/parameters/TerminalId'
+        - $ref: '#/components/parameters/PaTaxCode'
+        - $ref: '#/components/parameters/SubscriberId'
+      responses:
+        "204":
+          description: Terminal unsubscribed correctly
+        "400":
+          $ref: 'common.yaml#/components/responses/Error'
+        "401":
+          description: Access token or API key is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Subscription not found
+        "429":
+          description: Too many request
+        "500":
+          $ref: 'common.yaml#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+  /terminals/{paTaxCode}:
+    get:
+      operationId: getSubscribers
+      summary: Returns the list of subscribed terminals
+      parameters:
+        - $ref: 'common.yaml#/components/parameters/RequestId'
+        - $ref: 'common.yaml#/components/parameters/Version'
+        - $ref: '#/components/parameters/PaTaxCode'
+      responses:
+        "200":
+          $ref: '#/components/responses/Subscribes'
+        "400":
+          $ref: 'common.yaml#/components/responses/Error'
+        "401":
+          description: Access token or API key is missing or invalid
+        "403":
+          description: Forbidden
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: 'common.yaml#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+  # ------------------------------------------------------
+  # Presets
+  # ------------------------------------------------------
+  /presets:
+    post:
+      operationId: createPreset
+      summary: Creates a preset operation
+      parameters:
+        - $ref: 'common.yaml#/components/parameters/RequestId'
+        - $ref: 'common.yaml#/components/parameters/Version'
+      requestBody:
+        $ref: '#/components/requestBodies/CreatePreset'
+      responses:
+        "201":
+          $ref: '#/components/responses/PresetCreated'
+        "400":
+          $ref: 'common.yaml#/components/responses/Error'
+        "401":
+          description: Access token or API key is missing or invalid
+        "403":
+          description: Forbidden
+        "415":
+          description: Unsupported media type. Did you provide application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: 'common.yaml#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+  /presets/{paTaxCode}/{subscriberId}:
+    get:
+      operationId: getPresets
+      summary: Returns preset operations for a specific subscriber
+      parameters:
+        - $ref: 'common.yaml#/components/parameters/RequestId'
+        - $ref: 'common.yaml#/components/parameters/Version'
+        - $ref: '#/components/parameters/PaTaxCode'
+        - $ref: '#/components/parameters/SubscriberId'
+      responses:
+        "200":
+          $ref: '#/components/responses/Presets'
+        "400":
+          $ref: 'common.yaml#/components/responses/Error'
+        "401":
+          description: Access token or API key is missing or invalid
+        "403":
+          description: Forbidden
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: 'common.yaml#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+  /presets/{paTaxCode}/{subscriberId}/last_to_execute:
+    get:
+      operationId: getLastPresetToExecute
+      summary: Returns last preset operation to execute
+      parameters:
+        - $ref: 'common.yaml#/components/parameters/RequestId'
+        - $ref: 'common.yaml#/components/parameters/Version'
+        - $ref: 'common.yaml#/components/parameters/AcquirerId'
+        - $ref: 'common.yaml#/components/parameters/Channel'
+        - $ref: 'common.yaml#/components/parameters/MerchantId'
+        - $ref: 'common.yaml#/components/parameters/TerminalId'
+        - $ref: '#/components/parameters/PaTaxCode'
+        - $ref: '#/components/parameters/SubscriberId'
+      responses:
+        "200":
+          $ref: '#/components/responses/Preset'
+        "400":
+          $ref: 'common.yaml#/components/responses/Error'
+        "401":
+          description: Access token or API key is missing or invalid
+        "403":
+          description: Forbidden
+        "404":
+          description: Not found
+        "406":
+          description: Not acceptable. Did you require application/json?
+        "429":
+          description: Too many request
+        "500":
+          $ref: 'common.yaml#/components/responses/Error'
+        default:
+          description: Unexpected error
+
+components:
+  # ========================================================
+  # Schemas
+  # ========================================================
+  schemas:
+    # ------------------------------------------------------
+    # Basic types
+    # ------------------------------------------------------
+    AcquirerId:
+      description: Acquirer ID assigned by PagoPA
+      type: string
+      pattern: "^\\d{1,11}$"
+      example: "4585625"
+    
+    Channel:
+      description: Channel originating the request
+      enum:
+        - ATM
+        - POS
+        - TOTEM
+        - CASH_REGISTER
+        - CSA
+      type: string
+      example: "ATM"
+    
+    Company:
+      description: Name of the creditor company
+      type: string
+      pattern: "^[ -~]{1,140}$"
+      example: "ASL Roma"
+    
+    CreditorReferenceId:
+      description: ID for the creditor company
+      type: string
+      pattern: "^[ -~]{1,35}$"
+      example: "4839d50603fssfW5X"
+    
+    Debtor:
+      description: Debtor unstructured data
+      type: string
+      pattern: "^[ -~]{0,1024}$"
+      example: "Mario Rossi"
+    
+    Description:
+      description: Payment notice description
+      type: string
+      pattern: "^[ -~]{1,140}$"
+      example: "Health ticket for chest x-ray"
+    
+    EuroCents:
+      description: Amount in euro cents
+      type: integer
+      format: int64
+      minimum: 1
+      maximum: 99999999999
+      example: 12345
+    
+    MerchantId:
+      description: Merchant ID. Mandatory when Channel equals POS.
+      type: string
+      pattern: "^[0-9a-zA-Z]{1,15}$"
+      example: "28405fHfk73x88D"
+    
+    Message:
+      description: Generic message containing XML 1.1 allowed characters
+      type: string
+      pattern: "^[\\u0001-\\uD7FF\\uE000-\\uFFFD\\U10000-\\U10FFFF]{1,256}$"
+      example: "Session has not yet been created"
+    
+    NoticeNumber:
+      description: Notice number
+      type: string
+      pattern: "^[0-9]{18}$"
+      example: "485564829563528563"
+    
+    Office:
+      description: Name of the creditor company office
+      type: string
+      pattern: "^[ -~]{1,140}$"
+      example: "Ufficio di Roma"
+    
+    PaTaxCode:
+      description: Tax code of the creditor company
+      type: string
+      pattern: "^[0-9]{11}$"
+      example: "15376371009"
+    
+    PaymentMethod:
+      description: Method used to pay notice/s
+      type: string
+      enum:
+        - PAGOBANCOMAT
+        - DEBIT_CARD
+        - CREDIT_CARD
+        - PAYMENT_CARD # To be used only if the client is unable to choose among PAGOBANCOMAT, DEBIT_CARD or CREDIT_CARD.
+        - BANK_ACCOUNT
+        - CASH
+      example: "PAGOBANCOMAT"
+    
+    PaymentToken:
+      description: ID of the payment activation
+      type: string
+      pattern: "^[ -~]{1,35}$"
+      example: "648fhg36s95jfg7DS"
+    
+    Status:
+      description: Operation status
+      type: string
+      enum:
+        - TO_EXECUTE
+        - EXECUTED
+      example: "TO_EXECUTE"
+
+    SubscriberId:
+      description: Subscriber ID
+      type: string
+      pattern: "^[0-9a-z]{6}$"
+      example: "x46tr3"
+    
+    TerminalId:
+      description: ID of the terminal originating the transaction. It must be unique per acquirer and channel.
+      type: string
+      pattern: "^[0-9a-zA-Z]{1,8}$"
+      example: "0aB9wXyZ"
+    
+    TotalAmount:
+      description: Total amount in euro cents without fee
+      type: integer
+      format: int64
+      minimum: 1
+      maximum: 99999999999
+      example: 12345
+    
+    TransactionId:
+      description: Transaction ID
+      type: string
+      pattern: "^[a-zA-Z0-9]{32}$"
+      example: "517a4216840E461fB011036A0fd134E1"
+    
+    TransactionStatus:
+      description: Status of the transaction
+      type: string
+      enum:
+        - PRE_CLOSE
+        - PENDING
+        - ERROR_ON_CLOSE
+        - CLOSED
+        - ERROR_ON_RESULT
+        - ERROR_ON_PAYMENT
+        - ABORTED
+      example: "CLOSED"
+    
+    Type:
+      description: Opertion type
+      type: string
+      enum:
+        - PAYMENT_NOTICE
+      example: "PAYMENT_NOTICE"
+
+    URI:
+      description: URI
+      type: string
+      format: uri
+      pattern: "^[ -~]{1,2048}$"
+    
+    UUID:
+      description: UUID
+      type: string
+      format: uuid
+      pattern: "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
+      example: "d0d654e6-97da-4848-b568-99fedccb642b"
+
+    # ------------------------------------------------------
+    # Complex types
+    # ------------------------------------------------------
+    #
+    # For createPreset
+    #
+    Operation:
+      description: Generic operation
+      type: object
+      additionalProperties: true
+      properties:
+        operationType:
+          $ref: '#/components/schemas/Type'
+        paTaxCode:
+          $ref: '#/components/schemas/PaTaxCode'
+        subscriberId:
+          $ref: '#/components/schemas/SubscriberId'
+      required:
+        - operationType
+        - paTaxCode
+        - subscriberId
+    
+    #
+    # For getPresets
+    #
+    OperationDetails:
+      description: Details of a generic operation
+      type: object
+      additionalProperties: true
+      properties:
+        presetId:
+          $ref: '#/components/schemas/UUID'
+        creationTimestamp:
+          description: Creation timestamp
+          type: string
+          format: date-time
+          maxLength: 19
+        status:
+          $ref: '#/components/schemas/Status'
+        statusTimestamp:
+          description: Timestamp of the last status update
+          type: string
+          format: date-time
+          maxLength: 19
+      required:
+        - presetId
+        - creationTimestamp
+        - status
+        - statusTimestamp
+
+    #
+    # For createPreset
+    #
+    PaymentNotice:
+      description: Operation of payment of a notice
+      allOf: 
+        - $ref: '#/components/schemas/Operation'
+        - type: object
+          additionalProperties: true
+          properties:
+            noticeTaxCode:
+              $ref: '#/components/schemas/PaTaxCode'
+            noticeNumber:
+              $ref: '#/components/schemas/NoticeNumber'
+          required:
+            - noticeTaxCode
+            - noticeNumber
+      example:
+        operationType: "PAYMENT_NOTICE"
+        paTaxCode: "15376371009"
+        subscriberId: "x46tr3"
+        noticeTaxCode: "15376371009"
+        noticeNumber: "485564829563528563"
+            
+    #
+    # For getPresets
+    #
+    PaymentNoticeDetails:
+      description: Details of a payment notice as preset operation
+      allOf:
+        - $ref: '#/components/schemas/PaymentNotice'
+        - $ref: '#/components/schemas/OperationDetails'
+        - type: object
+          additionalProperties: true
+          properties:
+            statusDetails:
+              $ref: '#/components/schemas/PaymentStatus'
+          required:
+            - statusDetails
+      example:
+        operationType: "PAYMENT_NOTICE"
+        paTaxCode: "15376371009"
+        subscriberId: "x46tr3"
+        noticeTaxCode: "15376371009"
+        noticeNumber: "485564829563528563"
+        presetId: "d0d654e6-97da-4848-b568-99fedccb642b"
+        creationTimestamp: "2023-05-05T16:35:30"
+        status: "EXECUTED"
+        statusTimestamp: "2023-05-05T16:36:30"
+        statusDetails:
+          transactionId: "517a4216840E461fB011036A0fd134E1"
+          acquirerId: "4585625"
+          channel: "POS"
+          merchantId: "28405fHfk73x88D"
+          terminalId: "0aB9wXyZ"
+          insertTimestamp: "2023-04-11T16:20:34"
+          notices:
+            - paymentToken: "648fhg36s95jfg7DS"
+              paTaxCode: "15376371009"
+              noticeNumber: "485564829563528563"
+              amount: 12345
+              description: "Health ticket for chest x-ray"
+              company: "ASL Roma"
+              office: "Ufficio di Roma"
+          totalAmount: 12395
+          fee: 50
+          status: "PRE_CLOSE"
+
+    PaymentNoticeFullDetails:
+      description: Full details of the payment notice
+      type: object
+      additionalProperties: false
+      properties:
+        paymentToken:
+          $ref: '#/components/schemas/PaymentToken'
+        paTaxCode:
+          $ref: '#/components/schemas/PaTaxCode'
+        noticeNumber:
+          $ref: '#/components/schemas/NoticeNumber'
+        amount:
+          $ref: '#/components/schemas/EuroCents'
+        description:
+          $ref: '#/components/schemas/Description'
+        company:
+          $ref: '#/components/schemas/Company'
+        office:
+          $ref: '#/components/schemas/Office'
+        creditorReferenceId:
+          $ref: '#/components/schemas/CreditorReferenceId'
+        debtor:
+          $ref: '#/components/schemas/Debtor' 
+      required:
+        - paymentToken
+        - paTaxCode
+        - noticeNumber
+      example:
+        paymentToken: "648fhg36s95jfg7DS"
+        paTaxCode: "15376371009"
+        noticeNumber: "485564829563528563"
+        amount: 12345
+        description: "Health ticket for chest x-ray"
+        company: "ASL Roma"
+        office: "Ufficio di Roma"
+        creditorReferenceId: "4839d50603fssfW5X"
+        debtor: "Mario Rossi"        
+
+    PaymentStatus:
+      description: Payment status
+      type: object
+      additionalProperties: false
+      properties:
+        transactionId:
+          $ref: '#/components/schemas/TransactionId'
+        acquirerId:
+          $ref: '#/components/schemas/AcquirerId'
+        channel:
+          $ref: '#/components/schemas/Channel'
+        merchantId:
+          $ref: '#/components/schemas/MerchantId'
+        terminalId:
+          $ref: '#/components/schemas/TerminalId'
+        insertTimestamp:
+          description: Record registration timestamp (timestamp of pre-close or abort)
+          type: string
+          format: date-time
+          maxLength: 19
+        notices:
+          description: Details of payment notices
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/PaymentNoticeFullDetails'
+        totalAmount:
+          $ref: '#/components/schemas/TotalAmount'
+        fee:
+          $ref: '#/components/schemas/EuroCents'
+        status:
+          $ref: '#/components/schemas/TransactionStatus'
+        paymentMethod:
+          $ref: '#/components/schemas/PaymentMethod'
+        paymentTimestamp:
+          description: Timestamp of e-money transaction
+          type: string
+          format: date-time
+          maxLength: 19
+        closeTimestamp:
+          description: Timestamp of the confirmation from the Client
+          type: string
+          format: date-time
+          maxLength: 19
+        paymentDate:
+          description: Notification timestamp
+          type: string
+          format: date-time
+          maxLength: 19
+        callbackTimestamp:
+          description: Timestamp of the callback (sendPaymentResult) from the Nodo.
+          type: string
+          format: date-time
+          maxLength: 19
+      required:
+        - transactionId
+        - acquirerId
+        - channel
+        - terminalId
+        - insertTimestamp
+        - notices
+        - totalAmount
+        - status
+      example:
+        transactionId: "517a4216840E461fB011036A0fd134E1"
+        acquirerId: "4585625"
+        channel: "POS"
+        merchantId: "28405fHfk73x88D"
+        terminalId: "0aB9wXyZ"
+        insertTimestamp: "2023-04-11T16:20:34"
+        notices:
+          - paymentToken: "648fhg36s95jfg7DS"
+            paTaxCode: "15376371009"
+            noticeNumber: "485564829563528563"
+            amount: 12345
+            description: "Health ticket for chest x-ray"
+            company: "ASL Roma"
+            office: "Ufficio di Roma"
+        totalAmount: 12395
+        fee: 50
+        status: "PRE_CLOSE"
+
+    #
+    # For subscribe
+    #
+    Subscribe:
+      description: Request to subscribe a terminal to handle preset operations
+      type: object
+      additionalProperties: false
+      properties:
+        paTaxCode:
+          $ref: '#/components/schemas/PaTaxCode'
+        label:
+          description: Mnemonic terminal label
+          allOf:
+            - $ref: 'common.yaml#/components/schemas/Message'
+      example:
+        paTaxCode: "15376371009"
+        label: "Reception POS"
+
+    #
+    # For getSubscribers
+    #
+    Subscriber:
+      description: Subscriber data
+      type: object
+      additionalProperties: false
+      properties:
+        acquirerId:
+          $ref: 'common.yaml#/components/schemas/AcquirerId'
+        channel:
+          $ref: 'common.yaml#/components/schemas/Channel'
+        merchantId:
+          $ref: 'common.yaml#/components/schemas/MerchantId'
+        terminalId:
+          $ref: 'common.yaml#/components/schemas/TerminalId'
+        paTaxCode:
+          $ref: 'common-payment-notice.yaml#/components/schemas/PaTaxCode'
+        subscriberId:
+          $ref: '#/components/schemas/SubscriberId'
+        label:
+          description: Mnemonic terminal label
+          allOf:
+            - $ref: '#/components/schemas/Message'
+        subscriptionTimestamp:
+          description: Subscription timestamp
+          type: string
+          format: date-time
+          maxLength: 19
+        lastUsageTimestamp:
+          description: Last usage timestamp
+          type: string
+          format: date-time
+          maxLength: 19
+      required:
+        - acquirerId
+        - channel
+        - merchantId
+        - terminalId
+        - paTaxCode
+        - subscriberId
+        - label
+        - subscriptionTimestamp
+        - lastUsageTimestamp
+      example:
+        acquirerId: "4585625"
+        channel: "POS"
+        merchantId: "28405fHfk73x88D"
+        terminalId: "0aB9wXyZ"
+        paTaxCode: "15376371009"
+        subscriberId: "x46tr3"
+        label: "Reception POS"
+        subscriptionTimestamp: "2023-05-05T09:31:33"
+        lastUsageTimestamp: "2023-05-08T10:55:57"
+
+    #
+    # For getSubscribers
+    #
+    Subscribers:
+      description: List of subscribed terminals
+      type: object
+      additionalProperties: false
+      properties:
+        subscribers:
+          type: array
+          maxItems: 2176782336
+          items:
+            $ref: '#/components/schemas/Subscriber'
+      required:
+        - subscribers
+      example:
+        subscribers:
+          - acquirerId: "4585625"
+            channel: "POS"
+            merchantId: "28405fHfk73x88D"
+            terminalId: "0aB9wXyZ"
+            paTaxCode: "15376371009"
+            subscriberId: "x46tr3"
+            label: "Reception POS"
+            subscriptionTimestamp: "2023-05-05T09:31:33"
+            lastUsageTimestamp: "2023-05-08T10:55:57"
+
+    #
+    # For getPresets and getLastPresetToExecute
+    #
+    Preset:
+      description: Preset operation with detailed status data
+      oneOf:
+        - $ref: '#/components/schemas/PaymentNoticeDetails'
+      discriminator:
+        propertyName: operationType
+        mapping:
+          PAYMENT_NOTICE: '#/components/schemas/PaymentNoticeDetails'
+      
+    #
+    # For getPresets
+    #
+    Presets:
+      description: List of preset operations
+      type: object
+      additionalProperties: false
+      properties:
+        presets:
+          type: array
+          maxItems: 2176782336
+          items:
+            $ref: '#/components/schemas/Preset'
+      required:
+        - presets
+
+  # ========================================================
+  # Parameters
+  # ========================================================
+  parameters:
+    AcquirerId:
+      name: AcquirerId
+      in: header
+      description: Acquirer ID assigned by PagoPA. If the request comes from a terminal, the parameter is mandatory.
+      required: false
+      schema:
+        $ref: '#/components/schemas/AcquirerId'
+
+    Channel:
+      name: Channel
+      in: header
+      description: Channel originating the request. If the request comes from a terminal, the parameter is mandatory.
+      required: false
+      schema:
+        $ref: '#/components/schemas/Channel'
+
+    MerchantId:
+      name: MerchantId
+      description: Merchant ID. If the request comes from a POS, the parameter is mandatory.
+      in: header
+      required: false
+      schema:
+        $ref: '#/components/schemas/MerchantId'
+
+    TerminalId:
+      name: TerminalId
+      in: header
+      description: ID of the terminal originating the transaction. If the request comes from a terminal, the parameter is mandatory.
+      required: false
+      schema:
+        $ref: '#/components/schemas/TerminalId'
+
+    PaTaxCode:
+      name: paTaxCode
+      in: path
+      description: Tax code of the creditor company
+      required: true
+      schema:
+        $ref: '#/components/schemas/PaTaxCode'
+
+    SubscriberId:
+      name: subscriberId
+      in: path
+      description: ID assigned to subscribed terminal
+      required: true
+      schema:
+        $ref: '#/components/schemas/SubscriberId'
+
+  # ========================================================
+  # Request bodies
+  # ========================================================
+  requestBodies:
+    #
+    # For createPreset
+    #
+    CreatePreset:
+      description: Request to create as preset operation
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/PaymentNotice'
+            discriminator:
+              propertyName: operationType
+              mapping:
+                PAYMENT_NOTICE: '#/components/schemas/PaymentNotice'
+
+    #
+    # For subscribe
+    #
+    Subscribe:
+      description: Request to subscribe a terminal to handle preset operations
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Subscribe'
+    
+  # ========================================================
+  # Responses
+  # ========================================================
+  responses:
+    #
+    # For createPreset
+    #
+    PresetCreated:
+      description: Preset operation created successfully
+      headers:
+        Location:
+          description: URL to preset operation
+          required: true
+          schema:
+            $ref: '#/components/schemas/URI'
+          example:
+            Location: "/terminals/15376371009/x46tr3/d0d654e6-97da-4848-b568-99fedccb642b"
+
+    #
+    # For subscribe
+    #
+    Subscribe:
+      description: Terminal subscribed successfully or already subscribed
+      headers:
+        Location:
+          description: URL to subscribed terminal
+          required: true
+          schema:
+            $ref: '#/components/schemas/URI'
+          example:
+            Location: "/terminals/15376371009/x46tr3"
+
+    #
+    # For getSubscribers
+    #
+    Subscribes:
+      description: List of subscribed terminals
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Subscribers'
+
+    #
+    # For getPresets
+    #
+    Presets:
+      description: List of preset operations
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Presets'
+
+    # For getLastPresetToExecute
+    Preset:
+      description: Last preset to execute
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Preset'
+
+  # ========================================================
+  # Security schemes
+  # ========================================================
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
