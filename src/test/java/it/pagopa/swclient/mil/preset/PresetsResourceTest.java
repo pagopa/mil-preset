@@ -202,6 +202,76 @@ class PresetsResourceTest {
 
     }
 
+    /* **** preset **** */
+    @Test
+    @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
+    void deletePreset_204() {
+
+        Mockito
+                .when(presetRepository.delete(Mockito.any(String.class), Mockito.any(Object.class)))
+                .thenReturn(Uni.createFrom().item(1L));
+
+        final  String PRESET_ID = "77457c64-0870-407a-b2cb-0f948b04fb9a";
+
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .headers(presetHeaders)
+                .and()
+                .pathParam("presetId", PRESET_ID)
+                .when()
+                .delete("/{presetId}")
+                .then()
+                .extract()
+                .response();
+
+
+
+
+        Assertions.assertEquals(204, response.statusCode());
+    }
+
+
+    @Test
+    @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
+    void deletePreset_404() {
+
+
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .headers(presetHeaders)
+                .when()
+                .delete("774e7c64-0870-407a-b2cb-0f948b04fb9a")
+                .then()
+                .extract()
+                .response();
+
+        Assertions.assertEquals(404, response.statusCode());
+    }
+
+    @Test
+    @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
+    void deletePreset_500() {
+
+        Mockito
+                .when(presetRepository.delete(Mockito.any(String.class), Mockito.any(Object.class)))
+                .thenReturn(Uni.createFrom().failure(new TimeoutException()));
+
+
+
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .headers(presetHeaders)
+                .when()
+                .delete("774e7c64-0870-407a-b2cb-0f948b04fb9a")
+                .then()
+                .extract()
+                .response();
+
+        Assertions.assertEquals(500, response.statusCode());
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(ErrorCode.ERROR_WRITING_DATA_IN_DB));
+
+    }
+
 
     @Test
     @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
@@ -250,8 +320,8 @@ class PresetsResourceTest {
     }
 
     @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
-	@ParameterizedTest
-	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideHeaderValidationErrorCases")
+    @ParameterizedTest
+    @MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideHeaderValidationErrorCases")
     void createPreset_400_invalidHeaders(Map<String, String> invalidHeaders, String errorCode)  {
 
         CreatePresetRequest request = new CreatePresetRequest();
@@ -271,16 +341,16 @@ class PresetsResourceTest {
                 .extract()
                 .response();
 
-		Assertions.assertEquals(400, response.statusCode());
-		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+        Assertions.assertEquals(400, response.statusCode());
+        Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
         Assertions.assertNull(response.getHeader("Location"));
 
     }
 
     @ParameterizedTest
     @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
-	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideActivateRequestValidationErrorCases")
+    @MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideActivateRequestValidationErrorCases")
     void createPreset_400_invalidRequest(CreatePresetRequest request, String errorCode) {
 
         Response response = given()
@@ -294,8 +364,8 @@ class PresetsResourceTest {
                 .response();
 
         Assertions.assertEquals(400, response.statusCode());
-		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+        Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
         Assertions.assertNull(response.getHeader("Location"));
     }
 
@@ -530,8 +600,8 @@ class PresetsResourceTest {
 
     }
 
-  	@ParameterizedTest
-  	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideHeaderValidationErrorCases")
+    @ParameterizedTest
+    @MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideHeaderValidationErrorCases")
     @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
     void getPresets_400_invalidHeaders(Map<String, String> invalidHeaders, String errorCode) {
 
@@ -546,33 +616,33 @@ class PresetsResourceTest {
                 .extract()
                 .response();
 
-		Assertions.assertEquals(400, response.statusCode());
-		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+        Assertions.assertEquals(400, response.statusCode());
+        Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
         Assertions.assertNull(response.getHeader("Location"));
     }
-  	
- 	@ParameterizedTest
-  	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#providePaTaxCodeSubscriberIdValidationErrorCases")
+
+    @ParameterizedTest
+    @MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#providePaTaxCodeSubscriberIdValidationErrorCases")
     @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
     void getPresets_400_invalidPathParams(String paTaxCode, String subscriberId, String errorCode) {
- 		  Response response = given()
- 	                .contentType(ContentType.JSON)
- 	                .headers(presetHeaders)
- 	                .pathParam("paTaxCode", paTaxCode)
- 	                .pathParam("subscriberId", subscriberId)
- 	                .when()
- 	                .get("/{paTaxCode}/{subscriberId}")
- 	                .then()
- 	                .extract()
- 	                .response();
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .headers(presetHeaders)
+                .pathParam("paTaxCode", paTaxCode)
+                .pathParam("subscriberId", subscriberId)
+                .when()
+                .get("/{paTaxCode}/{subscriberId}")
+                .then()
+                .extract()
+                .response();
 
- 			Assertions.assertEquals(400, response.statusCode());
- 			Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
- 			Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
- 	        Assertions.assertNull(response.getHeader("Location"));
- 	    }
- 		
+        Assertions.assertEquals(400, response.statusCode());
+        Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+        Assertions.assertNull(response.getHeader("Location"));
+    }
+
     @Test
     @TestSecurity(user = "userJwt", roles = {"InstitutionPortal"})
     void getPresets_500_dbError_listPresets() {
@@ -652,11 +722,11 @@ class PresetsResourceTest {
 
     }
 
- 	@ParameterizedTest
-  	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideAllHeaderValidationErrorCases")
+    @ParameterizedTest
+    @MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#provideAllHeaderValidationErrorCases")
     @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void getLastPresetsOperation_400_invalidHeaders(Map<String, String> invalidHeaders, String errorCode) {
- 		Response response = given()
+        Response response = given()
                 .contentType(ContentType.JSON)
                 .headers(invalidHeaders)
                 .pathParam("paTaxCode", PA_TAX_CODE)
@@ -666,19 +736,19 @@ class PresetsResourceTest {
                 .then()
                 .extract()
                 .response();
- 		
-		Assertions.assertEquals(400, response.statusCode());
-		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+
+        Assertions.assertEquals(400, response.statusCode());
+        Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
         Assertions.assertNull(response.getHeader("Location"));
 
- 	}
- 	
- 	@ParameterizedTest
-  	@MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#providePaTaxCodeSubscriberIdValidationErrorCases")
+    }
+
+    @ParameterizedTest
+    @MethodSource("it.pagopa.swclient.mil.preset.util.TestUtils#providePaTaxCodeSubscriberIdValidationErrorCases")
     @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void getLastPresetsOperation_400_invalidPathParams(String paTaxCode, String subscriberId, String errorCode) {
- 		Response response = given()
+        Response response = given()
                 .contentType(ContentType.JSON)
                 .headers(commonHeaders)
                 .pathParam("paTaxCode", paTaxCode)
@@ -688,14 +758,14 @@ class PresetsResourceTest {
                 .then()
                 .extract()
                 .response();
- 		
-		Assertions.assertEquals(400, response.statusCode());
-		Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
-		Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
+
+        Assertions.assertEquals(400, response.statusCode());
+        Assertions.assertEquals(1, response.jsonPath().getList("errors").size());
+        Assertions.assertTrue(response.jsonPath().getList("errors").contains(errorCode));
         Assertions.assertNull(response.getHeader("Location"));
 
- 	}
- 	
+    }
+
     @Test
     @TestSecurity(user = "userJwt", roles = {"SlavePos"})
     void getLastPresetsOperation_404_presetNotFound() {

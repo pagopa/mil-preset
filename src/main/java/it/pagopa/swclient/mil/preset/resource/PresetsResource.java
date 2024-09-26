@@ -1,20 +1,17 @@
 package it.pagopa.swclient.mil.preset.resource;
 
+import com.oracle.svm.core.annotate.Delete;
 import io.quarkus.logging.Log;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.vertx.web.Param;
 import io.smallrye.mutiny.Uni;
 import it.pagopa.swclient.mil.bean.CommonHeader;
 import it.pagopa.swclient.mil.bean.Errors;
 import it.pagopa.swclient.mil.preset.ErrorCode;
 import it.pagopa.swclient.mil.preset.OperationType;
 import it.pagopa.swclient.mil.preset.PresetStatus;
-import it.pagopa.swclient.mil.preset.bean.CreatePresetRequest;
-import it.pagopa.swclient.mil.preset.bean.GetPresetsResponse;
-import it.pagopa.swclient.mil.preset.bean.InstitutionPortalHeaders;
-import it.pagopa.swclient.mil.preset.bean.PresetOperation;
-import it.pagopa.swclient.mil.preset.bean.Subscriber;
-import it.pagopa.swclient.mil.preset.bean.SubscriberPathParams;
+import it.pagopa.swclient.mil.preset.bean.*;
 import it.pagopa.swclient.mil.preset.dao.PresetEntity;
 import it.pagopa.swclient.mil.preset.dao.PresetRepository;
 import it.pagopa.swclient.mil.preset.dao.SubscriberEntity;
@@ -24,17 +21,12 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.BeanParam;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URI;
@@ -44,8 +36,8 @@ import java.util.UUID;
 @Path("/presets")
 public class PresetsResource {
 
-	public static final String SUBSCRIBER_FILTER = "subscriber.paTaxCode = :paTaxCode and subscriber.subscriberId = :subscriberId";
-	public static final String PRESET_FILTER = "presetOperation.paTaxCode = :paTaxCode and presetOperation.subscriberId = :subscriberId";
+    public static final String SUBSCRIBER_FILTER = "subscriber.paTaxCode = :paTaxCode and subscriber.subscriberId = :subscriberId";
+    public static final String PRESET_FILTER = "presetOperation.paTaxCode = :paTaxCode and presetOperation.subscriberId = :subscriberId";
 
     public static final String LAST_PRESET_FILTER = PRESET_FILTER;
     public static final String PA_TAX_CODE = "paTaxCode";
@@ -58,7 +50,7 @@ public class PresetsResource {
     String presetLocationBaseURL;
 
 
-	@Inject
+    @Inject
     PresetRepository presetRepository;
 
     @Inject
@@ -107,6 +99,39 @@ public class PresetsResource {
                 });
     }
 
+    @DELETE
+    @RolesAllowed({ "InstitutionPortal" })
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path(value = "/{presetId}")
+    public Uni<Response> deletePreset(@Valid @BeanParam InstitutionPortalHeaders portalHeaders,
+                                      @Valid
+                                      @NotNull(message = "[" + ErrorCode.CREATE_PRESET_REQUEST_MUST_NOT_BE_EMPTY + "] request must not be empty")
+                                       PresetPathParams pathParams) {
+
+
+        return presetRepository.delete("presetOperation.presetId", pathParams.getPresetId()
+                )
+                .onFailure().transform(err -> {
+                    Log.debugf("[%s] Error while deleting data from DB", ErrorCode.ERROR_WRITING_DATA_IN_DB);
+                    return new InternalServerErrorException(Response
+                            .status(Status.INTERNAL_SERVER_ERROR)
+                            .entity(new Errors(List.of(ErrorCode.ERROR_WRITING_DATA_IN_DB)))
+                            .build());
+                })
+                .map(deleted -> {
+                    Status status;
+                    if (deleted > 0) {
+                        status = Status.NO_CONTENT;
+                    } else {
+                        Log.warnf("No preset operation found for id %s", pathParams.getPresetId());
+                        status = Status.NOT_FOUND;
+                    }
+                    Log.debugf("delete preset - Response %s", status);
+                    return Response.status(status).build();
+                });
+    }
+
     /**
      * Returns the list of preset operations configured for a subscriber
      *
@@ -147,12 +172,11 @@ public class PresetsResource {
         Log.debugf("getLastPresetsOperation - Input parameters: %s, %s", headers, pathParams);
 
         return findLatestPresetOperation(pathParams.getPaTaxCode(), pathParams.getSubscriberId())
-				.chain(m -> {
+                .chain(m -> {
                     if (m == null) {
                         Log.debugf("getLastPresetsOperation - Response %s", Status.NOT_FOUND);
                         return Uni.createFrom().item(Response.status(Status.NOT_FOUND).build());
-                    }
-					else {
+                    } else {
                         Log.debugf("getLastPresetsOperation - Response %s", m);
                         return Uni.createFrom().item(Response.status(Status.OK).entity(m).build());
                     }
@@ -202,10 +226,10 @@ public class PresetsResource {
                                 .with(PA_TAX_CODE, paTaxCode)
                                 .and(SUBSCRIBER_ID, subscriberId)
                                 .map()
-						)
-				.firstResult()
+                )
+                .firstResult()
                 .onFailure().transform(PresetsResource::manageDbReadError)
-				.map(presetEntity -> {
+                .map(presetEntity -> {
                     if (presetEntity != null) {
                         if (StringUtils.equals(presetEntity.presetOperation.getStatus(), PresetStatus.TO_EXECUTE.name())) {
                             return presetEntity.presetOperation;
@@ -257,6 +281,9 @@ public class PresetsResource {
 
     }
 
+
+
+
     /**
      * Build the preset entity object to be persisted the {@link #persistPreset(Subscriber, CreatePresetRequest)} operation
      *
@@ -281,9 +308,9 @@ public class PresetsResource {
         presetOperation.setStatusTimestamp(timestamp);
         presetOperation.setSubscriberId(subscriber.getSubscriberId());
 
-		PresetEntity presetEntity = new PresetEntity();
-		presetEntity.id = presetId;
-		presetEntity.presetOperation = presetOperation;
+        PresetEntity presetEntity = new PresetEntity();
+        presetEntity.id = presetId;
+        presetEntity.presetOperation = presetOperation;
 
         return presetEntity;
     }
